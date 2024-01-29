@@ -1,0 +1,554 @@
+\documentclass[utf8]{lni}
+\usepackage{geometry}
+
+
+\begin{document}
+
+\title[Praktikumsprotokoll]{Nutzerzentrierte Softwareentwicklung Praktikumsprotokoll}
+
+\author[Fabian Emil Englert \and Alexander Vorobyev]
+{Fabian Emil Englert (755597), Alexander Vorobyev (765019) | Gruppe Do1y}
+\editor{Hans-Peter Wiedling}
+\booktitle{NZSE Praktikumsbericht SS22}
+\yearofpublication{2022}
+
+\maketitle
+
+\newpage
+\tableofcontents
+\newpage
+
+\section{Erklärung}
+Wir versicheren hiermit, dass wir die vorliegende Arbeit selbständig verfasst und keine anderen als die im Literaturverzeichnis angegebenen Quellen benutzt haben. Alle Stellen, die wörtlich oder sinngemäß aus veröffentlichten oder noch nicht veröffentlichten Quellen entnommen sind, sind als solche kenntlich gemacht. Die Zeichnungen oder Abbildungen in dieser Arbeit sind von uns selbst erstellt worden oder mit einem entsprechenden Quellennachweis versehen.
+
+
+\begin{center}
+	\centering Fabian Emil Englert, Alexander Vorobyev
+\end{center}
+
+
+
+\section{Einführung}
+Bislang haben wir uns in unserem Studium hauptsächlich mit dem Rechner und seinen Komponenten beschäftigt. In "`\textit{Technische Grundlagen der Informatik}"' haben wir aus Gattern Bauteile konstruiert, in Rechnerarchitektur die Funktionsweise der CPU angeschaut und in "`\textit{Programmieren / Algorithmen und Datenstrukturen 1 und 2}"' haben wir in der Hochsprache C++ Algorithmen geschrieben.\newline
+In dem Fach "`\textit{Nutzerzentrierte Softwareentwicklung}"' beschäftigen wir uns nun mit der Interaktion zwischen Mensch und Maschine. Da die beiden Entitäten nicht dieselbe Sprache sprechen, führt die Benutzung der Technik oft zu Schwierigkeiten. Daher beginnt alles damit, den richtigen Menschen überhaupt zu erreichen. Es gibt junge und alte Leute, Leute die von Technik begeistert sind und welche die sich eher davon distanzieren. Es gibt Leute mit großen und Leute mit kleinen Händen. Leute mit Sehschwächen, Leute mit Hörschäden und vieles mehr. All diese Leute muss man irgendwie mit seiner Entwicklung ansprechen können. Das erreicht man mit dem richtigen Design: Farben, Anordnung von Knöpfen, Ablauf der Bedienung, Funktionstüchtigkeit usw. Am Ende soll die Anwendung für den Benutzer intuitiv sein, es soll so erscheinen, als wäre er in Kontrolle und versteht ganz genau was er da macht, er soll auch irgendwo Spaß an der Bedienung finden.\newline
+Um diesen Prozess näher kennenzulernen, war unsere Aufgabe eine Android-App in \textit{Android Studio} zu programmieren, zu dem Thema \textit{E-Mobilität}. Der Inhalt der App wird in dem Abschnitt Projektbeschreibung näher beschrieben.
+
+In diesem Bericht soll die Durchführung des Praktikums dokumentiert werden.
+
+\section{Projektbeschreibung}
+Das Praktikum im Sommersemester 2022 bestand aus der Aufgabe eine Android-App zur E‐Mobilität zu erstellen. Diese App soll nahe Ladesäulen anzeigen, die Möglichkeit bieten Säulen, als Favoriten zu markieren und eine Route zu einer Ladesäule anzeigen. Des Weiteren sollen die in der Vorlesung behandelten Themen wie Usability, RecyclerView und die Entwicklung in der Programmiersprache Java vertieft werden. Die App sollte außerdem mehrsprachig sein und nicht nur auf die deutsche Sprache beschränkt sein.
+
+\subsection{Projektaufbau}
+Zu Beginn des Semesters wurden von der Praktikumsgruppe User Stories für vier Personas, die App verwenden sollen, erstellt und diese vorgestellt. Danach ging es an das Erstellen von Entwürfen für die Screens der Android App. Ein Entwurf sollte abstrakt die Inhalte der einzelnen Screens darstellen und ein anderer stellt dar, wie zwischen den einzelnen Screens navigiert wird. Anschließend ging die Entwicklung des Prototyps in Team-Arbeit los. In den einzelnen Praktikumsterminen wurde uns Feedback gegeben und wie wir weiter vorgehen können. An dem letzten Praktikumstermin wurde ein Usabilitytest von der Tutorin des Praktikums durchgeführt.
+
+\section{Usability Überlegungen}
+\subsection{Persona}
+
+Bevor die eigentliche Entwicklung der App beginnt muss analysiert werden, wer mit dieser App interagieren wird. Ob als Entwickler oder als Benutzer, alle Interessen der Interagierenden müssen vertreten werden. Im Rahmen des Projekts einigten wir uns auf die folgenden vier Rollen:
+\begin{itemize}
+	\item Autofahrer, die am Ende der Hauptnutzer der entwickelten App sind
+	\item Servicetechniker, die zuständig sind für das instand halten der eigentlichen Ladesäulen
+	\item Entwickler, die die App entwickeln
+	\item Projektleitern, die Verantwortlichen des Projekts
+\end{itemize}
+
+In einem realen Projekt wäre die Liste an Rollen deutlich länger, da aber diese App nicht auf den Markt kommt und nur für unser Praktikum entwickelt wird, können wir weitere Persona ignorieren.
+% denn in unserer Praktikums Umgebung fehlen finanzielle und rechtliche Interessen, sowie der Verleger unserer App. 
+Jetzt da wir die Persona festgelegt haben, müssen wir ihnen ein wenig Charakter geben und Wünsche sowie Verzichte aufschreiben, damit der Fokus des Projekts eingeschränkt wird und Klarheit darüber entsteht, was genau entwickelt wird. In unserer Praktikumsgruppe sammelten wir jetzt für jede Persona User Stories.
+
+\subsection{User Stories}
+
+Als Fahrer möchte ich ...
+ \begin{itemize}
+	\item wissen, wo die Ladestationen sind
+	\item wissen, wo die nächste Ladestation ist
+	\item wissen, wo die günstigste Ladestation ist
+	\item eine Detailansicht über die Ladestationen (Standort, Steckdosentyp, besetzt/frei, wie viele Ladestationen)
+	\item wissen, wenn eine Ladestation eine Störung hat und eine Störung melden können
+	\item eine Filterfunktion (Filter für Steckdose, 10km nähe, sortieren nach günstig, besetzt/frei)
+	\item wissen, ob mein Auto kompatibel mit der Ladestation ist (Steckdosentyp) (E-Kennzeichen)
+	\item eine Routenplanung zu der Ladestation machen können
+	\item verschiedene Sprachen aussuchen können
+	\item einen Nachtmodus (nachts fahren)
+	\item einen Verlauf von meinen besuchten Ladestationen
+	\item eine Bewertungsfunktion
+	\item eine Funktion, in der ich favorisierte Ladestationen auswählen kann
+\end{itemize}
+
+Als Autofahrer möchte man hauptsächlich wissen, wo die nächste Ladesäule ist, also könnte man nach der ersten User Story die Persona abhaken. Jedoch wird eine App, die nur das anbietet, nicht lange auf dem Endgerät verweilen.
+Als Beispiel nehmen wir einen einfachen Autofahrer, der sein Elektroauto laden möchte. Er installiert die Anwendung, bekommt Ladesäulen angezeigt und fährt zu einer hin. Vor Ort merkt er, dass die Anschlüsse nicht kompatibel sind. Er ärgert sich und deinstalliert die App. Auch wenn das notwendige Kriterium für die Autofahrer erfüllt ist, ist es noch lange nicht hinreichend, um sie von unserer App zu überzeugen. Aus diesem Grund gibt es viele weitere User Stories, die zusammen die Mindestanforderungen der Autofahrer bilden.
+Vielleicht wollen sie in den Urlaub fahren, dann brauchen sie einen Routenplaner, der sie durch die richtigen Ladesäulen führt. Oder sie wollen in der Nähe, am billigsten oder am schnellsten laden, dann brauchen sie eine Auswahl und die Möglichkeit zu sortieren und vieles mehr.
+Die Autofahrer bilden den Kern der Kundschaft und damit den Kern unserer App. Ihre Kriterien und Wünsche zu erfüllen hat höchste Priorität, denn ohne Autofahrer muss man auch keine App Entwickeln.
+
+
+Als Servicetechniker möchte ich ...
+\begin{itemize}
+	\item eine kurze Fehlerbeschreibung, was an der Ladesäule nicht funktioniert
+	\item eine Liste, in der offene Tickets aufgelistet sind, mit Priorisierung-Sortiermöglichkeit
+	\item eine Sortierung nach Datum, Uhrzeit und Status
+	\item Status von diesem Ticket einsehen, ob schon ein anderer Techniker dran arbeitet oder nicht (offen/geschlossen) + Priorisierung der defekten Stationen
+	\item ein unterstützendes System für den Techniker (Lösungsansätze erfassen):  Feld, in dem dokumentiert wird, was repariert wurde, wie und was nicht und (Button, auf dem reparieren steht -> draufklicken -> danach Status: repariert)
+	\item ein Navigationssystem zu der Station (Schnittstelle zu Google Maps)
+\end{itemize}
+
+Die Servicetechniker sind eine geringe Erweiterung der Benutzer. Uns gehören die Ladestationen zwar nicht, aber wir möchten im Rahmen des Projekts so tun als könnten wir Servicetechniker losschicken, um Ladesäulen zu reparieren. In dem Fall sollen die Servicetechniker in der Lage sein eine defekte Ladesäule zu orten. Damit sie nicht an das andere Ende Deutschlands fahren müssen, wäre eine Umkreissuche von Vorteil.
+
+Als Entwickler möchte ich ...
+
+\begin{itemize}
+	\item für eine vereinfachte Nutzung, eine schlichte und übersichtliche App sorgen.
+	\item die Ladesäulen in der Umgebung anzeigen lassen.
+	\item die Ladesäulen nach Betreibern oder Ladegeschwindigkeit sortieren lassen.
+	\item Software bezogene Fehlermeldungen angezeigt bekommen, damit ich diese beheben kann (Bugreport).
+	\item Verbesserungsvorschläge zu der App kriegen, damit ich es optimieren kann.
+\end{itemize}
+
+Die Entwickler sind eine sehr besondere Persona, denn ihre Interessen und Ziele sind es Interessen und Ziele der Autofahrer und Servicetechniker umzusetzen. Hinzu kommen nur noch technische Aspekte, wie Erweiterbarkeit der App, Bugreport und Feedback.
+
+Als Projektleiter möchte ich ...
+
+\begin{itemize}
+	\item alle Ladesäulen Deutschlands den Anwender anzeigen, damit dieser diese zum Tanken verwenden kann.
+	\item alle defekte Ladesäulen anzeigen, damit Servicetechniker diese reparieren können.
+	\item eine einheitliche Entwicklungsumgebung einsetzen, damit keine technischen Probleme bei der Entwicklung entstehen.
+	\item wöchentliche Treffen mit dem Team, damit Probleme bei der Entwicklung behoben werden können und die Qualität sichergestellt wird.
+	\item innerhalb von fünf Praktikumsterminen das Projekt fertigstellen, damit die Deadline eingehalten werden kann.
+	\item Kontakt mit den Nutzern, damit deren Feedback in die Entwicklung mit einfließen kann.
+	\item eine modulare Anwendung, damit neue Features einfach implementiert werden können.
+	\item eine zuverlässige Anwendung, damit der Anwender zufrieden ist.
+\end{itemize}
+
+Die Projektleiter organisieren die Entwicklung und sorgen dafür, dass alles planmäßig in einer vorgegebenen Zeit und mit vorgegebenen Ressourcen fertig wird. Damit auch Qualität sichergestellt werden kann, sind die Anforderungen der Autofahrer sowie Servicetechniker, auch Anforderungen der Projektleiter.
+
+In unserem Projekt verkörpern wir die Entwickler als auch die Projektleiter. Wir haben limitierte Ressourcen, wie Zeit, kein wirkliches Feedback von Benutzern. Das sorgt dafür, dass wir uns jetzt schon Gedanken machen müssen, ob wir überhaupt in der Lage sind, alles umzusetzen, was die Autofahrer und Servicetechniker verlangen könnten.
+Um die Features zu eliminieren, für die wir nicht die Ressourcen haben, gäbe es zwei Möglichkeiten. Einmal streichen wir alles weg, was wir nicht erfüllen werden oder wir lassen bei der Entwicklung Sachen aus, bei denen wir sicher sind, dass es keinen Weg gibt diese zu Realisieren.
+Die erste Methode klingt deutlich solider, da man von Anfang an weiß, was man macht und nicht macht. Man kann sich Zeit einteilen und hat schon eine grobe Idee, wo das hinführt. Wir haben uns allerdings für die zweite Methode entschieden, aus dem einfachen Grund, weil wir noch keine Erfahrung in dem Gebiet haben, und das Risiko, dass wir uns die schweren Implementierungen übriglassen und die leichten streichen. Der Nachteil unseres Vorgangs wird jedoch sein, dass wir nicht wissen können, wie lange wir uns an einem Feature aufhalten dürfen und ob wir genug Anforderungen erfüllt haben. Jedoch erschien es für uns am sinnvollsten erst mal anzufangen und zuschauen, wohin es sich entwickelt.
+
+
+\subsection{Screen Entwürfe}
+
+Mit den festgelegten User Stories ist die nächste Aufgabe unsere App zu visualisieren. Da die Zielplattform ein Android-Gerät ist, können wir das Verhalten des Programms auf mehrere, mit sich verbundene Bildschirme darstellen, die sogenannten Screens. Es gibt zwei Varianten diese umzusetzen. Einmal die abstrakten Screens und einmal die konkreten Screens. Die abstrakten Screens bilden das Grundgerüst. Auf ihnen ist die Funktionalität der App aufgeteilt und welcher Screen nach welchem folgt. Die konkreten Screens sind eine ausgearbeitete Version der abstrakten Screens. Dort wird Position von Knöpfen, Farbe von verschiedenen Elementen und weitere detaillierte Features festgelegt. Logischerweise beginnt man mit der Erstellung von abstrakten Screens, ordnet erstmal die einzelnen Funktionalitäten auf die Screens und schaut, wie man sie am besten verbindet, um dem Benutzer das Leben leicht zu machen. Erst dann verwandelt man die abstrakten Screens in konkrete und trifft Entscheidungen, was das Aussehen betrifft.
+Wir haben es jedoch verkehrt herum gemacht. Wir haben zuerst konkrete Screens erstellt und dann im Praktikum gesagt bekommen, dass man mit den abstrakten anfangen sollte. Aber warum sind wir selbst nicht darauf gekommen, denn schließlich ist die Erstellung der abstrakten Screens deutlich einfacher. Nun abstrakt denkt kein Mensch und wenn man eine App entwickeln will, hat man von Anfang an eine generelle Idee wie es aussehen soll. Da wir uns Sachen bildlich vorstellen geben wir einem Knopf oder einem Slider lieber eine Position, Form und Farbe, und klatschen den nicht einfach mittig auf den Screen als „Buttons“. Auch die unzähligen Apps die wir schonmal gesehen und bedient haben geben uns eher Inspiration für konkrete als abstrakte Screens.
+
+In unserem Bericht wollen wir jedoch die Erstellung der Screens logisch aufzeigen, obwohl wir die konkreten Screens zuerst entwarfen.
+
+Als ersten Screen brauchen wir einen Startbildschirm. Anfangs wollten wir darauf Google Maps mit den nächsten Ladesäulen anzeigen lassen, entschieden uns aber dagegen, weil ein schwächeres Endgerät mit schlechtem Internetempfang den Start Screen ewig laden würde, und das wäre kein guter erster Eindruck. Also ordneten wir dem Screen nahe Ladestationen zu. siehe Abbildung \ref{Bilder:1}
+
+\begin{figure}
+	\begin{minipage}{.5\textwidth}
+		\centering
+		\includegraphics[width=.5\linewidth]{Praktikum2Bilder/1}
+		\captionof{figure}{abstrakter Mainscreen}
+		\label{Bilder:1}
+	\end{minipage}%
+	\begin{minipage}{.5\textwidth}
+		\centering
+		\includegraphics[width=.5\linewidth]{Praktikum2Bilder/2}
+		\captionof{figure}{abstrakter Mapscreen}
+		\label{Bilder:2}
+	\end{minipage}%
+\end{figure}
+
+Der nächste Screen zeigt die Map mit den nächsten Ladesäulen an in einem vorgegebenen Umkreis an. Siehe Abbildung \ref{Bilder:2}
+
+Wird eine Ladestation angeklickt, so zeigt dieser Screen Informationen über sie an. Weitere Funktionen wie die Ladestation defekt melden oder die Route starten sind hier auch enthalten. Siehe Abbildung \ref{Bilder:3}
+
+\begin{figure}
+	\begin{minipage}{.5\textwidth}
+	\centering
+\includegraphics[width=.5\linewidth]{Praktikum2Bilder/3}
+\captionof{figure}{abstrakter Informationsscreen}
+\label{Bilder:3}
+	\end{minipage}%
+	\begin{minipage}{.5\textwidth}
+	\centering
+\includegraphics[width=.5\linewidth]{Praktikum2Bilder/4}
+\captionof{figure}{abstrakter Navigationsscreen}
+\label{Bilder:4}
+	\end{minipage}%
+\end{figure}
+
+
+Der letzte Screen zeigt die Route an mit den Optionen sie zu beenden, um auf den vorherigen Screen zu kommen oder die Route neu zu starten, falls etwas mit der Navigation nicht stimmt. Siehe Abbildung \ref{Bilder:4}
+
+Hiermit wären die wichtigsten Funktionalitäten auf diesen vier Screens untergebracht.
+Verbindet man sie, bekommen wir zwei mögliche Abläufe. In Blau, wenn man sich eine Ladesäule auf der Map ausgesucht hat und in Schwarz, wenn man sofort beim Startbildschirm einen Favoriten ausgewählt hat. Siehe Abbildung \ref{Bilder:5}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=.8\linewidth]{Praktikum2Bilder/5}
+	\captionof{figure}{abstrakte Navigationsübersicht Autofahrer}
+	\label{Bilder:5}
+\end{figure}
+
+Jetzt, wo die Autofahrer ihre App haben müssen wir uns was für die Servicetechniker überlegen. Im Grunde genommen können wir die Screens so lassen und nur ein wenig modifizieren. Siehe Abbildung \ref{Bilder:6}
+
+\begin{itemize}
+	\item Auf dem Start Screen werden keine Favoriten, sondern die nächsten defekten Ladesäulen angezeigt.
+	\item Auf der Map werden auch nur defekte Ladesäulen angezeigt.
+	\item Auf dem Info-Screen wird der 'Melden' Button durch einen 'Repariert' Button ersetzt.
+\end{itemize}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=.95\linewidth]{Praktikum2Bilder/6}
+	\captionof{figure}{komplette abstrakte Navigationsübersicht}
+	\label{Bilder:6}
+\end{figure}
+
+
+Mit den fertigen abstrakten Screens können wir ihnen etwas Farbe geben und sie so ausarbeiten, wie es am Ende ungefähr aussehen soll. Gleichzeitig haben wir ein paar Änderungen vorgenommen, die anfangs nicht in den Sinn gekommen sind.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=1\linewidth]{Praktikum2Bilder/7}
+	\captionof{figure}{komplette konkrete Navigationsübersicht}
+	\label{Bilder:7}
+\end{figure}
+
+
+\begin{itemize}
+	\item Der Start Screen zeigt nicht die Favoriten, sondern die nächstliegenden Ladesäulen an. Aus dem einfachen Grund, weil wenn man keine Favoriten hat, ist man bei den abstrakten Screens gezwungen sich eine Ladesäule über die Map auszusuchen, was dem Benutzer das Gefühl verleiht er sei nicht in Kontrolle und wird gezwungen die App umständlich zu bedienen.
+	\item Bei der Favoritenliste kann man jetzt seine markierten Ladestationen weiter nach Entfernung und nach „nicht defekt“ zu sortieren.
+	\item Jeder Screen hat jetzt ein Knopf für Optionen, wo man verschiedenes einstellen kann, zum Beispiel, ob man Servicetechniker ist.
+	\item  Wird eine Ladestation angedrückt, so fährt ein kleines Fenster auf, welches mehr Informationen zu der ausgewählten Ladestation hat mit einem Knopf, der auf den nächsten Screen führt.
+	\item Den Screen mit der Map kann man drehen.
+\end{itemize}
+
+Beim näheren Betrachten dieser Version, ist uns aufgefallen, dass man den Screen mit den Informationen über die Ladesäule sich sparen kann, wenn man das kleine ausfahrbare Fenster um die fehlenden Informationen erweitert. Das würde auch dazu führen, dass der Screen, der die eigentliche Route beinhaltet überflüssig ist, da Google Maps die Arbeit überlassen kann. Diese Änderung hat unsere finalen Screens endgültig beschlossen.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=.8\linewidth]{Praktikum2Bilder/8}
+	\captionof{figure}{finalle Navigationsübersicht}
+	\label{Bilder:8}
+\end{figure}
+\subsection{Screens}
+\subsubsection{Home}
+
+Der Homescreen ist der erste Screen der die Benutzer zu Gesicht bekommen. Dieser Screen zeigt die nahen Ladestationen für E-Autos basierend auf dem Standort der Nutzer. Der Homescreen beinhaltet auch einen Schalter um in den Modus für die Servicetechniker schaltet. In diesem Modus werden in diesem Bildschirm die nahen defekten Ladesäulen angezeigt. Diese defekten Ladesäulen können in diesem Screen auch direkt als repariert gemeldet werden.
+Im unteren Teil des Bildschirms befindet sich die NavigationView, die es ermöglicht zwischen dem Homescreen, dem Favoriten Screen und dem Map Screen zu wechseln. Die Abbildungen \ref{Bilder:Handy_Main} und \ref{Bilder:Handy_Main_Quer} zeigen den Homescreen im Hochformat und Querformat.
+Das Layout wurde mit einem CostraintLayout gelöst. Dieses Layout beinhaltet einen TextView, einen Switch der zwischen ServicetechnikerIn Modus und normalen BenutzerIn umschaltet, RecyclerView für die einzelnen Ladestationelemente und eine NavigationView für die Navigation zwischen den einzelnen Activities. In den Abbildungen \ref{Bilder:Layout_Homescreen} und \ref{Bilder:Layout_Homescreen_Quer} ist das Layout als Blueprint zu sehen. In den Abbildungen \ref{Bilder:Tablet_Main} und \ref{Bilder:Tablet_Main_Quer} ist der Screen auf einem Tablet zu sehen. In Abbildung \ref{Bilder:Tablet_Main_Quer} ist außerdem der Servicetechniker Switch aktiv und zeigt eine defekte Ladestation an.
+
+\begin{figure}
+	\centering
+	\begin{minipage}{.5\textwidth}
+		\centering
+		\includegraphics[width=.4\linewidth]{Bilder/Handy_Main}
+		\captionof{figure}{Mainscreen im Hochformat}
+		\label{Bilder:Handy_Main}
+	\end{minipage}%
+	\begin{minipage}{.5\textwidth}
+		\centering
+		\includegraphics[width=1\linewidth]{Bilder/Handy_Main_Quer}
+		\captionof{figure}{Mainscreen im Querformat}
+		\label{Bilder:Handy_Main_Quer}
+	\end{minipage}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\begin{minipage}{.5\textwidth}
+		\centering
+		\includegraphics[width=.4\linewidth]{Bilder/Tablet_Main}
+		\captionof{figure}{Mainscreen im Hochformat}
+		\label{Bilder:Tablet_Main}
+	\end{minipage}%
+	\begin{minipage}{.5\textwidth}
+		\centering
+		\includegraphics[width=1\linewidth]{Bilder/Tablet_Main_Service_Techniker_Quer}
+		\captionof{figure}{Mainscreen im Querformat}
+		\label{Bilder:Tablet_Main_Quer}
+	\end{minipage}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\begin{minipage}{.5\textwidth}
+		\centering
+		\includegraphics[width=.4\linewidth]{Bilder/Layout_Homescreen}
+		\captionof{figure}{Layout Mainscreen im Hochformat}
+		\label{Bilder:Layout_Homescreen}
+	\end{minipage}%
+	\begin{minipage}{.5\textwidth}
+		\centering
+		\includegraphics[width=1\linewidth]{Bilder/Layout_Homescreen_Quer}
+		\captionof{figure}{Layout Mainscreen im Querformat}
+		\label{Bilder:Layout_Homescreen_Quer}
+	\end{minipage}
+\end{figure}
+
+
+\subsubsection{Map}
+
+Auf dem Map Screen werden auf einem Google Maps Fragment die nahen Ladesäulen angezeigt und der letzte Standort des Nutzers angezeigt. Durch das Drücken auf eine Ladesäule auf der Karte wird im unteren Teil des Bildschirms in einem RecyclerView Informationen zu der gewählten Ladestation angezeigt. Diese diesem RecyclerView Element wird der Betreiber, die Straße, der Ort, der Status, ob die Ladesäule funktioniert oder nicht und Knopf der die Navigation zu der gewählten Ladestation startet angezeigt. In den Abbildungen \ref{Bilder:Handy_Map} und \ref{Bilder:Handy_Map_Quer} ist dies zu auf einem Handy zu sehen und in den Abbildungen \ref{Bilder:Tablet_Map} und \ref{Bilder:Tablet_Map_Quer} ist der Screen auf einem Tablet zu sehen. In den Abbildungen \ref{Bilder:Layout_Map} und \ref{Bilder:Layout_Map_Quer} ist das Layout in Blueprint Anzeige zu sehen.
+
+\begin{figure}
+	\centering
+	\begin{minipage}{.5\textwidth}
+		\centering
+		\includegraphics[width=.4\linewidth]{Bilder/Handy_Map}
+		\captionof{figure}{Mapscreen im Hochformat}
+		\label{Bilder:Handy_Map}
+	\end{minipage}%
+	\begin{minipage}{.5\textwidth}
+		\centering
+		\includegraphics[width=1\linewidth]{Bilder/Handy_Map_Quer}
+		\captionof{figure}{Mapscreen im Querformat}
+		\label{Bilder:Handy_Map_Quer}
+	\end{minipage}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\begin{minipage}{.5\textwidth}
+		\centering
+		\includegraphics[width=.4\linewidth]{Bilder/Tablet_Map}
+		\captionof{figure}{Mapscreen im Hochformat (Tablet)}
+		\label{Bilder:Tablet_Map}
+	\end{minipage}%
+	\begin{minipage}{.5\textwidth}
+		\centering
+		\includegraphics[width=1\linewidth]{Bilder/Tablet_Map_Quer}
+		\captionof{figure}{Mapscreen im Querformat (Tablet)}
+		\label{Bilder:Tablet_Map_Quer}
+	\end{minipage}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\begin{minipage}{.5\textwidth}
+		\centering
+		\includegraphics[width=.4\linewidth]{Bilder/Layout_Map}
+		\captionof{figure}{Blueprint Anzeige des Map Screen Layouts}
+		\label{Bilder:Layout_Map}
+	\end{minipage}%
+	\begin{minipage}{.5\textwidth}
+		\centering
+		\includegraphics[width=1\linewidth]{Bilder/Layout_Map_Quer}
+		\captionof{figure}{Blueprint Anzeige des Map Screen Layouts im Querformat}
+		\label{Bilder:Layout_Map_Quer}
+	\end{minipage}
+\end{figure}
+
+\subsubsection{Favoriten}
+
+Der letzte Screen ist der Favoriten Screen, in diesem Screen werden die vom Nutzer favorisierten Ladestationen angezeigt. In dem oberen Teil des Screens befindet sich ein Schieberegler, mit dem sich der Umkreis der anzuzeigenden Ladesäulen in 10 km Schritten ändert. Das Maximum des maximalen Umkreises ist 300 km, da höhere Werte möglicherweise nicht mehr in Deutschland liegen. In dem TextView über dem Schieberegler wird der aktuelle Umkreis angezeigt. Unter dem Schieberegler befindet sich der RecyclerView, der die favorisierten Ladesäulen enthält, die sich in dem vom Nutzer definierten Umkreis befinden. Wir haben uns in der Gruppe für einen Schieberegler entschieden, da er im Vergleich zu einer Eingabe einer Zahl weniger Interaktion benötigt. Bei der Eingabe einer Zahl in einem EditText Element muss erst der Nutzer draufdrücken und dann die Zahl eingeben und dies bestätigen. Bei dem Schieberegler muss der Nutzer nur den Punkt auf der Leiste hin und herschieben um den Umkreis zu ändern.
+Wie der Screen auf einem Smartphone aussieht ist in den Abbildungen \ref{Bilder:Handy_Favoriten_2} und \ref{Bilder:Handy_Favoriten_Quer} zu sehen. Abbildungen \ref{Bilder:Tablet_Favoriten_2} und \ref{Bilder:Tablet_Favoriten_Quer} ist der Screen auf einem Tablet zu sehen. In den Abbildungen \ref{Bilder:Layout_Favoriten} und \ref{Bilder:Layout_Favoriten_Quer} ist das Layout in Blueprint Anzeige zu sehen.
+
+\begin{figure}
+	\centering
+	\begin{minipage}{.5\textwidth}
+		\centering
+		\includegraphics[width=.4\linewidth]{Bilder/Handy_Favoriten_2}
+		\captionof{figure}{Favoriten Screen im Hochformat}
+		\label{Bilder:Handy_Favoriten_2}
+	\end{minipage}%
+	\begin{minipage}{.5\textwidth}
+		\centering
+		\includegraphics[width=1\linewidth]{Bilder/Handy_Favoriten_Quer}
+		\captionof{figure}{Favoriten Screen im Querformat}
+		\label{Bilder:Handy_Favoriten_Quer}
+	\end{minipage}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\begin{minipage}{.5\textwidth}
+		\centering
+		\includegraphics[width=.4\linewidth]{Bilder/Tablet_Favoriten}
+		\captionof{figure}{Favoriten Screen im Hochformat (Tablet)}
+		\label{Bilder:Tablet_Favoriten_2}
+	\end{minipage}%
+	\begin{minipage}{.5\textwidth}
+		\centering
+		\includegraphics[width=1\linewidth]{Bilder/Tablet_Favoriten_Quer}
+		\captionof{figure}{Favoriten Screen im Querformat (Tablet)}
+		\label{Bilder:Tablet_Favoriten_Quer}
+	\end{minipage}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\begin{minipage}{.5\textwidth}
+		\centering
+		\includegraphics[width=.4\linewidth]{Bilder/Layout_Favoriten}
+		\captionof{figure}{Blueprint Anzeige des Favoriten Screen Layouts}
+		\label{Bilder:Layout_Favoriten}
+	\end{minipage}%
+	\begin{minipage}{.5\textwidth}
+		\centering
+		\includegraphics[width=1\linewidth]{Bilder/Layout_Favoriten_Quer}
+		\captionof{figure}{Blueprint Anzeige des Favoriten Screen Layouts im Querformat}
+		\label{Bilder:Layout_Favoriten_Quer}
+	\end{minipage}
+\end{figure}
+
+
+
+\section{Umsetzung des Prototypen}
+\subsection{Laden der Ladesäulen in eine Datenbank}
+Bei dem ersten Starten der App nach der Installation in der Download Activity eine \textit{csv-Datei} mit den Daten zu Ladesäulen für E-Autos heruntergeladen und in eine Datenbank geschrieben. Diese Datenbank ist eine \textit{SQLite} Datenbank die mit \textit{Room}, welche eine Persistenzbibliothek ist und die wiederum ein Teil von den \textit{Jetpack}-Bibliotheken ist, abstrahiert wird. 
+Diese Datenbank wird als Singleton in dieser App verwendet, da es nicht nötig ist mehr als eine Instanz der Datenbank in dieser App zu erzeugen. 
+
+Um diese Abstraktionsschicht zu verwenden wird eine Klasse, die als \textit{Data Access Object} (DAO) markiert ist, benötigt. Diese Klasse ist die \textit{ChargingStationDAO} Klasse. Diese Klasse enthält Query Methoden die für den Zugriff auf die Room Datenbank. Eine Methode ist zum Beispiel für das Laden alle Ladestationen, die als Favorit markiert wurde oder das Aktualisieren einer Entität in der Datenbank.
+
+Die Entitäten der Datenbank sind in der Klasse chargingStation definiert. Diese Klasse ist mit @Entity markiert und enthält alle Spalten der CSV-Datei als Attribute. So enthält sie zum Beispiel den Ort, die Art der Anschlüsse der Ladesäulen sowie die Anzahl der Säulen.
+ 
+Für das Einlesen wird die Bibliothek \textit{CSVReader} verwenden, da der bereitgestellte Beispielcode mit den Anführungszeichen in der CSV-Datei nicht zurechtkam. Diese Bibliothek liest jeweils eine Zeile der Datei ein und in unserer Anwendungslogik wandeln wir diese Zeile zu einer Entität für die Datenbank um.
+
+\subsection{RecyclerViews in Main Screen und Favoriten Screen}
+Die RecyclerViews in den Main und Favoriten Screens wird verwendet um die Ladesäulen in einer Liste anzuzeigen. Das Layout für den RecyclerView besteht aus einem LinearLayout, dass zwei ConstraintLayouts beinhaltet. In dem ersten ConstraintLayout befindet sich ein LinearLayout, dass den Betreiber, die Addresse und die Stadt als TextViews anzeigt. Des Weiteren befinden sich in dem ersten ConstraintLayout zwei ToggleButtons, einer ist ein Button um die Ladestation als Favorit zu kennzeichnen und der andere zeigt bzw. lässt das zweite ContraintLayout verschwinden. Außerdem ist ein ImageView vorhanden, der anzeigt, ob eine Ladesäule defekt ist oder funktioniert.
+Das zweite ConstraintLayout enthält eine TextView, die einen Anschluss der Ladesäule anzeigt und zwei Buttons. Der Reportknopf markiert die Ladesäule als defekt und der "`Starte Route"' Knopf übergibt die Koordinaten der Ladesäule an die App Google Maps und startet eine Route beginnend von dem aktuellen Standort des Benutzers.
+Wenn der Servicetechniker die App verwendet ist das Layout identisch, es wird nur der Reportbutton zu einem Repariertbutton.
+Dieser Button markiert die Ladesäule als funktionsfähig. In den Abbildungen 11 und 12 wird das Layout des RecyclerViews dargestellt. Die Größe der einzelnen Elemente wurde so angepasst, dass diese leicht lesbar sind und im Falle der Buttons auch groß genug sind um diese leicht zu erreichen und zu betätigen.
+Bei der Größe der Buttons haben wir uns an die Material Design Richtlinie gehalten\footnote{\url{https://material.io/design/layout/spacing-methods.html\#touch-targets}} und die Buttons haben deshalb Größe 48dp x 48dp. 
+
+Der RecyclerView im Map Screen ist sehr ähnlich zu denen im Main und Favoriten Screen. Er unterscheidet sich dadurch, dass im Map Screen der RecyclerView nicht ausklappbar ist und stattdessen einen Button enthält, mit dem man die Navigation zu der ausgewählten Ladestation starten kann.
+
+\begin{figure}
+	\centering
+	\begin{minipage}{.5\textwidth}
+		\centering
+		\includegraphics[width=.9\linewidth]{Bilder/RecyclerView}
+		\captionof{figure}{RecyclerView Layout}
+		\label{Bilder:RecyclerView}
+	\end{minipage}%
+	\begin{minipage}{.5\textwidth}
+		\centering
+		\includegraphics[width=.9\linewidth]{Bilder/RecyclerView_Blueprint}
+		\captionof{figure}{RecyclerView Layout in Blueprint Ansicht}
+		\label{Bilder:RecyclerView_Blueprint}
+	\end{minipage}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\begin{minipage}{.5\textwidth}
+		\centering
+		\includegraphics[width=.9\linewidth]{Bilder/RecyclerView_Map}
+		\captionof{figure}{RecyclerView Map Layout}
+		\label{Bilder:RecyclerView_Map}
+	\end{minipage}%
+	\begin{minipage}{.5\textwidth}
+		\centering
+		\includegraphics[width=.9\linewidth]{Bilder/RecyclerView_Map_Blueprint}
+		\captionof{figure}{RecyclerView Map Layout in Blueprint Ansicht}
+		\label{Bilder:RecyclerView_Map_lueprint}
+	\end{minipage}
+\end{figure}
+
+\subsection{Google Maps im Map Screen}
+Zur Anzeige von den Ladesäulen haben wir ein Google Maps Fragment verwendet. Zunächst muss der Nutzer der App zustimmen, dass die App den Standort des Smartphones oder Tablets verwenden darf. Erst danach kann die Map verwendet werden. Auf dieser Map wird der letzte Standort des Nutzers angezeigt und die Ladestation im Umkreis von 25 Kilometern. Der Standort wird mit Hilfe von einem FusedLocationProviderClient abgerufen und als Marker auf die Karte gezeichnet. Danach wird die Google Maps Ausschnitt auf einen vordefinierten Umkreis von dem Marker gesetzt. Anschließend werden die Ladesäulen im Umkreis von 25 Kilometer als Marker auf die Karte gezeichnet und bekommen einen onClickListener gesetzt. In diesem onClickListener wird definiert, was passiert wenn der Marker angeklickt wird. In diesem Fall wird ein RecyclerView mit einem Element, der angeklickten Ladesäule, erstellt und angezeigt. In diesem Element kann die Ladesäule als Favorit gekennzeichnet werden und eine Navigation über die externe Google Maps App auf dem Gerät gestartet werden. Der App wird die Koordinate der angeklickten Ladesäule mit übergeben.
+
+
+\subsection{Koppelung zwischen den einzelnen Klassen der App}
+Eine enge Kopplung zwischen den einzelnen Klassen kann ein Problem bei der Entwicklung der App werden. Denn falls in einer Klasse ein Attribut verändert wird, kann es sein, dass Methoden in einer anderen Klasse nicht mehr funktioniert. Um dieses Problem zu lösen sollten auf Attribute nur über Getter-Methoden zugegriffen werden.
+In unserer App sind die Klasse nicht stark gekoppelt. Die einzige Klasse, die dieses Problem aufweisen würde, ist die Klasse chargingStation in der die Ladestationen beschrieben werden. Wir greifen aber auf die Attribute der Klasse hauptsächlich über Getter-Methoden zu.
+
+\section{Usability Tests}
+Um die Nutzbarkeit der von uns entwickelten App zu Testen müssen Usability Tests durchgeführt werden, um zu überprüfen, ob unsere App auch wirklich für die entwickelten Personas auch benutzbar ist. Beispiele für diese Tests wären zum Beispiel, wie lange der Tester benötigt um eine Ladesäule zu finden und eine Route zu dieser zu starten. Außerdem könnte getestet werden, wie lange der Servicetechniker benötigt um eine Ladesäule als repariert zu markieren oder das navigieren zu einer defekten Ladesäule.
+
+\section{Zusammenfassung}
+Rückblickend auf das gesamte Praktikum, war jeder Termin ein Sinnesabschnitt für das sich entwickelnde Projekt. Beginnend mit einer groben Ideensammlung für eine gesetzte Problemstellung, bei der verschiedene Persona mit Kriterien und Mindestanforderungen, das Ziel und die Grenzen der App dargestellt haben. Auch wenn am Anfang klar wurde, dass nicht alles in der kurzen Zeit umgesetzt werden kann, hatte man eine generelle Richtung und auch einen Grund gewisse Features so und nicht anders zu implementieren. Darauffolgend wurden die abstrakten, sowie konkreten Screens gezeichnet, die auf Papier den Ablauf und die Darstellung der zu entwickelnden App beschlossen haben. An der Stelle haben wir unbewusst schon den ersten fertigen Prototypen erstellt, auf den wir in den anschließenden Praktika hingearbeitet haben. Zuerst wurden die Screens in Android Studio einfach übernommen, ohne jegliche Logik zu beinhalten. Das sicherte uns einen einfachen Einstieg und gab uns etwas Zeit sich mit der Entwicklungsumgebung anzufreunden. Es wurde dann die CSV-Datei eingelesen, in der Informationen über alle Ladesäulen Deutschlands stehen und von dort aus wurden Stück für Stück die Funktionen eingebaut, die geplant waren.
+Vergleicht man unsere finalen konkreten Screens mit der entstandenen App, so sieht man, dass die beiden Prototypen beinahe identisch sind. Einige Features wie, Routenplanung und eine Foto-Funktion fehlen zwar, aber auch das ist nur eine Frage der Zeit, bis sie in der jetzigen Version implementiert werden. Anhand dessen finden wir, dass der erste Prototyp der App gelungen ist. Von der Planung bis zur Umsetzung werden wir vieles für die nächsten Semester mitnehmen können.
+
+
+
+Als nächsten Schritt könnte man die App weiter ausbauen und um eine Routeplanerfunktionalität ergänzen. Eine weitere Iteration wäre das Hinzufügen einer Funktion, die es dem Benutzer ermöglicht Bilder einer defekten Ladesäule zu erstellen, um dem Servicetechniker das Reparieren der Ladesäule zu erleichtern.
+\section{Programmdokumentation}
+
+\begin{figure}
+	\centering
+	\begin{minipage}{.5\textwidth}
+		\centering
+		\includegraphics[width=1.0\linewidth]{Bilder/classde_1_1hda_1_1nzse22_1_1_main_activity__inherit__graph}
+		\captionof{figure}{Klassendiagramm MainActivity}
+	\end{minipage}%
+	\begin{minipage}{.5\textwidth}
+		\centering
+		\includegraphics[width=0.8\linewidth]{Bilder/classde_1_1hda_1_1nzse22_1_1_favorite_activity__coll__graph}
+		\captionof{figure}{Klassendiagramm FavoriteActivity}
+	\end{minipage}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\begin{minipage}{.5\textwidth}
+		\centering
+		\includegraphics[width=1\linewidth]{Bilder/classde_1_1hda_1_1nzse22_1_1_map_activity__coll__graph}
+		\captionof{figure}{Klassendiagramm MapActivity}
+	\end{minipage}%
+	\begin{minipage}{.5\textwidth}
+		\centering
+		\includegraphics[width=0.8\linewidth]{Bilder/classde_1_1hda_1_1nzse22_1_1download_1_1_get_charging_stations_activity__coll__graph}
+		\captionof{figure}{Klassendiagramm GetChargingStationsActivity}
+	\end{minipage}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\begin{minipage}{.5\textwidth}
+		\centering
+		\includegraphics[width=.9\linewidth]{Bilder/classde_1_1hda_1_1nzse22_1_1download_1_1_request_service__coll__graph}
+		\captionof{figure}{Klassendiagramm RequestService}
+	\end{minipage}%
+	\begin{minipage}{.5\textwidth}
+		\centering
+		\includegraphics[width=1.0\linewidth]{Bilder/classde_1_1hda_1_1nzse22_1_1download_1_1_request_service_1_1_request_service_binder__coll__graph}
+		\captionof{figure}{Klassendiagramm RequestServiceBinder}
+	\end{minipage}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\begin{minipage}{.5\textwidth}
+		\centering
+		\includegraphics[width=1.0\linewidth]{Bilder/classde_1_1hda_1_1nzse22_1_1favorites_adapter_1_1favorites_adapter__coll__graph}
+		\captionof{figure}{Klassendiagramm favoritesAdapter}
+	\end{minipage}%
+	\begin{minipage}{.5\textwidth}
+		\centering
+		\includegraphics[width=1.0\linewidth]{Bilder/classde_1_1hda_1_1nzse22_1_1map_adapter_1_1map_adapter__coll__graph}
+		\captionof{figure}{Klassendiagramm mapAdapter}
+	\end{minipage}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\begin{minipage}{.5\textwidth}
+		\centering
+		\includegraphics[width=.9\linewidth]{Bilder/classde_1_1hda_1_1nzse22_1_1download_1_1_request_service__coll__graph}
+		\captionof{figure}{Klassendiagramm RequestService}
+	\end{minipage}%
+	\begin{minipage}{.5\textwidth}
+		\centering
+		\includegraphics[width=1.0\linewidth]{Bilder/classde_1_1hda_1_1nzse22_1_1download_1_1_request_service_1_1_request_service_binder__coll__graph}
+		\captionof{figure}{Klassendiagramm RequestServiceBinder}
+	\end{minipage}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\begin{minipage}{.5\textwidth}
+		\centering
+		\includegraphics[width=.9\linewidth]{Bilder/classde_1_1hda_1_1nzse22_1_1model_1_1_n_z_s_e_database__coll__graph}
+		\captionof{figure}{Klassendiagramm NZSEDatabase}
+	\end{minipage}%
+	\begin{minipage}{.5\textwidth}
+		\centering
+		\includegraphics[width=1.0\linewidth]{Bilder/interfacede_1_1hda_1_1nzse22_1_1model_1_1_charging_station_d_a_o__coll__graph}
+		\captionof{figure}{Klassendiagramm ChargingStationDAO}
+	\end{minipage}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=.35\linewidth]{Bilder/classde_1_1hda_1_1nzse22_1_1model_1_1charging_station__coll__graph}
+	\captionof{figure}{Klassendiagramm chargingStation}
+\end{figure}
+
+
+
+
+\end{document}

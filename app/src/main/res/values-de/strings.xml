@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="download">Download</string>
+    <string name="favoriten">Favoriten</string>
+    <string name="button">Knopf</string>
+    <string name="action_settings">Einstellungen</string>
+    <string name="next">Nächstes</string>
+    <string name="previous">Vorheriges</string>
+    <string name="search">Suche</string>
+    <string name="city">Stadt</string>
+    <string name="address_recycler">Adresse</string>
+    <string name="operator_recycler">Betreiber</string>
+    <string name="mainText">Nahe Ladestationen</string>
+    <string name="starte_route">Starte Route</string>
+    <string name="report">Melden</string>
+    <string name="servicetechniker">Servicetechniker</string>
+    <string name="repariert">Reparieren</string>
+</resources>
