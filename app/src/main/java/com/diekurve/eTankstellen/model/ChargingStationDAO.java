@@ -1,4 +1,4 @@
-package de.hda.nzse22.model;
+package com.diekurve.eTankstellen.model;
 
 import androidx.room.Dao;
 import androidx.room.Insert;

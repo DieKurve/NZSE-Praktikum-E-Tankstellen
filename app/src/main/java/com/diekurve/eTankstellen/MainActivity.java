@@ -1,4 +1,4 @@
-package de.hda.nzse22;
+package com.diekurve.eTankstellen;
 
 
 import android.Manifest;
@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -26,36 +27,35 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-import de.hda.nzse22.download.GetChargingStationsActivity;
-import de.hda.nzse22.favoritesAdapter.favoritesAdapter;
-import de.hda.nzse22.model.ChargingStationDAO;
-import de.hda.nzse22.model.NZSEDatabase;
-import de.hda.nzse22.model.chargingStation;
+import com.diekurve.eTankstellen.download.GetChargingStationsActivity;
+import com.diekurve.eTankstellen.favoritesAdapter.favoritesAdapter;
+import com.diekurve.eTankstellen.model.ChargingStationDAO;
+import com.diekurve.eTankstellen.model.chargingStation;
 
 public class MainActivity extends AppCompatActivity {
 
     private final int MY_PERMISSIONS = 1;
-    private final String[] permissions = {Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.INTERNET, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+    private final String[] permissions = {Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.INTERNET};
     List<chargingStation> chargingStations = null;
     List<chargingStation> mNearChargingStations = null;
-    private NZSEDatabase database;
+    private com.diekurve.eTankstellen.model.chargingStations database;
     private ChargingStationDAO chargingStationDAO;
     private BottomNavigationView navView;
     private favoritesAdapter mAdapter;
     private RecyclerView mRecyclerView;
-    private SwitchCompat servicetechnikerSwitch;
+    //private SwitchCompat servicetechnikerSwitch;
     private SharedPreferences sharedPreferences;
 
 
     /**
-     * Creates the activity and creates the database
-     * If it is empty it downloads a list of chargingstations in Germany
-     * If it is too big it deletes the database and downloads a list of chargingstations in Germany
+     * Creates the activity and creates the database if not exists
      *
-     * @param savedInstanceState If the activity is being re-initialized after previously being shut down
-     *                           then this Bundle contains the data it most recently supplied in
-     *                           onSaveInstanceState(Bundle).
-     *                           (https://developer.android.com/reference/android/app/Activity#onCreate(android.os.Bundle))
+     * @param savedInstanceState If the activity is being re-initialized after previously being shut
+     *                           down then this Bundle contains the data it most recently supplied
+     *                           in onSaveInstanceState(Bundle).
+     *                           (<a href="https://developer.android.com/reference/android/app/
+     *                           Activity#onCreate(android.os.Bundle)">...</a>)
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,42 +63,43 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ActivityCompat.requestPermissions(this, permissions, MY_PERMISSIONS);
         createDatabase();
-        initServiceTechnikerSwitch();
+        //initServiceTechnikerSwitch();
         setList();
         initNavView();
-        Integer amountofChargingStations = 29612;
+        //Integer amountofChargingStations = 29612;
 
-        if (getDatabaseSize() < amountofChargingStations) {
-            startActivity(new Intent(getApplicationContext(), GetChargingStationsActivity.class));
-        } else if (getDatabaseSize() > amountofChargingStations) {
-            deleteDatabase();
-            startActivity(new Intent(getApplicationContext(), GetChargingStationsActivity.class));
-        }
+//        if (getDatabaseSize() < amountofChargingStations) {
+//            startActivity(new Intent(getApplicationContext(), GetChargingStationsActivity.class));
+//        } else if (getDatabaseSize() > amountofChargingStations) {
+//            deleteDatabase();
+//            startActivity(new Intent(getApplicationContext(), GetChargingStationsActivity.class));
+//        }
 
     }
 
-    /**
-     * Initializes the Servicetechniker Switch
-     */
-    private void initServiceTechnikerSwitch() {
-        sharedPreferences = getSharedPreferences("NZSE_SS22", MODE_PRIVATE);
-        servicetechnikerSwitch = findViewById(R.id.servicetechnikerSwitch);
-        if (!sharedPreferences.contains("isServicetechniker")) {
-            SharedPreferences.Editor checkServicetechniker = sharedPreferences.edit();
-            checkServicetechniker.putBoolean("isServicetechniker", false);
-            checkServicetechniker.apply();
-        }
-        servicetechnikerSwitch.setOnClickListener(l -> {
-            SharedPreferences.Editor checkServicetechniker = sharedPreferences.edit();
-            checkServicetechniker.putBoolean("isServicetechniker", servicetechnikerSwitch.isChecked());
-            checkServicetechniker.apply();
-            try {
-                populateChargingStation();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        });
-    }
+//    /**
+//     * Initializes the Servicetechniker Switch
+//     */
+//    private void initServiceTechnikerSwitch() {
+//        sharedPreferences = getSharedPreferences("NZSE_SS22", MODE_PRIVATE);
+//        servicetechnikerSwitch = findViewById(R.id.servicetechnikerSwitch);
+//        if (!sharedPreferences.contains("isServicetechniker")) {
+//            SharedPreferences.Editor checkServicetechniker = sharedPreferences.edit();
+//            checkServicetechniker.putBoolean("isServicetechniker", false);
+//            checkServicetechniker.apply();
+//        }
+//        servicetechnikerSwitch.setOnClickListener(l -> {
+//            SharedPreferences.Editor checkServicetechniker = sharedPreferences.edit();
+//            checkServicetechniker.putBoolean("isServicetechniker",
+//                    servicetechnikerSwitch.isChecked());
+//            checkServicetechniker.apply();
+//            try {
+//                populateChargingStation();
+//            } catch (InterruptedException e) {
+//                Log.e("error", e.toString());
+//            }
+//        });
+//    }
 
     /**
      * Initializes the NavigationView
@@ -111,17 +112,19 @@ public class MainActivity extends AppCompatActivity {
         navView.getMenu().performIdentifierAction(R.id.navigation_home, 0);
 
         navView.setOnItemSelectedListener(item -> {
-            switch (item.getItemId()) {
-                case R.id.navigation_home:
-                    return true;
-                case R.id.navigation_favorites:
-                    startActivity(new Intent(getApplicationContext(), FavoriteActivity.class));
-                    overridePendingTransition(0, 0);
-                    return true;
-                case R.id.navigation_map:
-                    startActivity(new Intent(getApplicationContext(), MapActivity.class));
-                    overridePendingTransition(0, 0);
-                    return true;
+            if (item.getItemId() == R.id.navigation_home) {
+                return true;
+            }
+            if (item.getItemId() == R.id.navigation_favorites) {
+
+                startActivity(new Intent(getApplicationContext(), FavoriteActivity.class));
+                overridePendingTransition(0, 0);
+                return true;
+            }
+            if (item.getItemId() == R.id.navigation_map) {
+                startActivity(new Intent(getApplicationContext(), MapActivity.class));
+                overridePendingTransition(0, 0);
+                return true;
             }
             return false;
         });
@@ -145,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             populateChargingStation();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            Log.e("error", e.toString());
         }
     }
 
@@ -155,9 +158,12 @@ public class MainActivity extends AppCompatActivity {
      * @throws InterruptedException Throws exception if thread failed
      */
     private void populateStationList() throws InterruptedException {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.checkSelfPermission(this,
+                        Manifest.permission.ACCESS_COARSE_LOCATION) !=
+                        PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, permissions, MY_PERMISSIONS);
         }
 
@@ -165,19 +171,23 @@ public class MainActivity extends AppCompatActivity {
 
         if (sharedPreferences.getBoolean("isServicetechniker", false)) {
             AtomicReference<List<chargingStation>> dbList = new AtomicReference<>();
-            Thread dbListThread = new Thread(() -> dbList.set(database.chargingStationDAO().getNotWorkingChargingStations()));
-            ;
+            Thread dbListThread = new Thread(() ->
+                    dbList.set(database.chargingStationDAO().getNotWorkingChargingStations()));
+
             dbListThread.start();
             dbListThread.join();
             chargingStations = dbList.get();
         }
 
-        FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        FusedLocationProviderClient fusedLocationClient =
+                LocationServices.getFusedLocationProviderClient(this);
         fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
             if (location != null) {
-                LatLng currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
+                LatLng currentLocation = new LatLng(location.getLatitude(),
+                        location.getLongitude());
                 for (chargingStation favorite : chargingStations) {
-                    LatLng favoriteCoordination = new LatLng(favorite.getLatitude(), favorite.getLongitude());
+                    LatLng favoriteCoordination = new LatLng(favorite.getLatitude(),
+                            favorite.getLongitude());
                     if (checkIsInDistance(favoriteCoordination, currentLocation, 25)) {
                         mNearChargingStations.add(favorite);
                     }
@@ -203,18 +213,20 @@ public class MainActivity extends AppCompatActivity {
      * @param maxDistance         Maximum distance
      * @return Return if the location is in distance to the last location
      */
-    private boolean checkIsInDistance(LatLng favoriteCoordinates, LatLng lastCoordinates, int maxDistance) {
+    private boolean checkIsInDistance(LatLng favoriteCoordinates, LatLng lastCoordinates,
+                                      int maxDistance) {
         return checkDistance(favoriteCoordinates, lastCoordinates) <= maxDistance;
     }
 
     /**
-     * Return the distance between chargingstation and last coordinates of the user
+     * Return the distance between Charging Stations and last coordinates of the user
      *
-     * @param favoriteCoordinates Coordinate of chargingstation
+     * @param favoriteCoordinates Coordinate of Charging Station
      * @param lastCoordinates     Coordinate of user
      * @return Distance to last coordinates
      */
-    private int checkDistance(@NonNull LatLng favoriteCoordinates, @NonNull LatLng lastCoordinates) {
+    private int checkDistance(@NonNull LatLng favoriteCoordinates,
+                              @NonNull LatLng lastCoordinates) {
         Location currentLocation = new Location(LocationManager.GPS_PROVIDER);
         currentLocation.setLatitude(lastCoordinates.latitude);
         currentLocation.setLongitude(lastCoordinates.longitude);
@@ -242,7 +254,7 @@ public class MainActivity extends AppCompatActivity {
      * Creates the database
      */
     private void createDatabase() {
-        database = NZSEDatabase.getDatabase(getApplicationContext());
+        database = com.diekurve.eTankstellen.model.chargingStations.getDatabase(getApplicationContext());
         chargingStationDAO = database.chargingStationDAO();
     }
 
@@ -258,7 +270,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             checkThread.join();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            Log.e("error", e.toString());
         }
         return sizeDB.get();
     }
@@ -274,28 +286,28 @@ public class MainActivity extends AppCompatActivity {
         try {
             checkThread.join();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            Log.e("error", e.toString());
         }
     }
 
     /**
-     * When activity is resumed reload favorite chargingstations
+     * When activity is resumed reload favorite charging stations
      */
     @Override
     public void onResume() {
         navView.setSelectedItemId(R.id.navigation_home);
-        sharedPreferences = getSharedPreferences("NZSE_SS22", MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences("E_Tankstellen", MODE_PRIVATE);
         super.onResume();
         try {
             populateChargingStation();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            Log.e("error", e.toString());
         }
         System.out.println(chargingStations.size());
     }
 
     /**
-     * When activity is destroyed close database
+     * When activity is destroyed close the  database
      */
 
     @Override

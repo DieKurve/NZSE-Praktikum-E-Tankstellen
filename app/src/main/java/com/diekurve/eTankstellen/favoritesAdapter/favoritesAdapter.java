@@ -1,4 +1,4 @@
-package de.hda.nzse22.favoritesAdapter;
+package com.diekurve.eTankstellen.favoritesAdapter;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,10 +20,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
-import de.hda.nzse22.R;
-import de.hda.nzse22.model.ChargingStationDAO;
-import de.hda.nzse22.model.NZSEDatabase;
-import de.hda.nzse22.model.chargingStation;
+import com.diekurve.eTankstellen.R;
+import com.diekurve.eTankstellen.model.ChargingStationDAO;
+import com.diekurve.eTankstellen.model.chargingStations;
+import com.diekurve.eTankstellen.model.chargingStation;
 
 public class favoritesAdapter extends RecyclerView.Adapter<favoritesAdapter.ViewHolder> {
 
@@ -117,14 +118,15 @@ public class favoritesAdapter extends RecyclerView.Adapter<favoritesAdapter.View
         });
 
         viewHolder.reportButton.setOnClickListener(l -> {
-            localDataSet.get(position).setWorking(isWorking.getBoolean("isServicetechniker", false));
+            localDataSet.get(position).setWorking(isWorking.getBoolean("isServicetechniker",
+                    false));
             updateChargingStation(position);
             notifyItemChanged(position);
         });
 
         viewHolder.navigationButton.setOnClickListener(l -> {
-            String geoLocation = "google.navigation:q=" + localDataSet.get(position).getLatitude() + "," +
-                    localDataSet.get(position).getLongitude();
+            String geoLocation = "google.navigation:q=" + localDataSet.get(position).getLatitude()
+                    + "," + localDataSet.get(position).getLongitude();
             Uri gmmIntentUri = Uri.parse(geoLocation);
             Intent navigationIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
             navigationIntent.setPackage("com.google.android.apps.maps");
@@ -146,14 +148,14 @@ public class favoritesAdapter extends RecyclerView.Adapter<favoritesAdapter.View
      * @param position Position of Element which will be updated
      */
     private void updateChargingStation(int position) {
-        NZSEDatabase db = NZSEDatabase.getDatabase(mContext);
+        chargingStations db = chargingStations.getDatabase(mContext);
         ChargingStationDAO dao = db.chargingStationDAO();
         Thread updateThread = new Thread(() -> dao.update(localDataSet.get(position)));
         updateThread.start();
         try {
             updateThread.join();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            Log.e("error", e.toString());
         }
     }
 

@@ -1,4 +1,4 @@
-package de.hda.nzse22;
+package com.diekurve.eTankstellen;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -26,9 +27,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-import de.hda.nzse22.favoritesAdapter.favoritesAdapter;
-import de.hda.nzse22.model.NZSEDatabase;
-import de.hda.nzse22.model.chargingStation;
+import com.diekurve.eTankstellen.favoritesAdapter.favoritesAdapter;
+import com.diekurve.eTankstellen.model.chargingStations;
+import com.diekurve.eTankstellen.model.chargingStation;
 
 public class FavoriteActivity extends AppCompatActivity {
 
@@ -38,7 +39,7 @@ public class FavoriteActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private favoritesAdapter mAdapter;
     private List<chargingStation> mFavoriteChargingStations = null;
-    private NZSEDatabase database;
+    private chargingStations database;
     private SeekBar distanceBar;
     private TextView distance;
     private int progressValue = 10;
@@ -48,16 +49,17 @@ public class FavoriteActivity extends AppCompatActivity {
     /**
      * Creates the activity
      *
-     * @param savedInstanceState If the activity is being re-initialized after previously being shut down
-     *                           then this Bundle contains the data it most recently supplied in
-     *                           onSaveInstanceState(Bundle).
-     *                           (https://developer.android.com/reference/android/app/Activity#onCreate(android.os.Bundle))
+     * @param savedInstanceState If the activity is being re-initialized after previously being
+     *                           shut down then this Bundle contains the data it most recently
+     *                           supplied in onSaveInstanceState(Bundle).
+     *                           (<a href="https://developer.android.com/reference/android/app/
+     *                           Activity#onCreate(android.os.Bundle)">...</a>)
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_favorites);
-        database = NZSEDatabase.getDatabase(getApplicationContext());
+        database = chargingStations.getDatabase(getApplicationContext());
         initSharedPreferences();
         setList();
         initNavBar();
@@ -72,14 +74,16 @@ public class FavoriteActivity extends AppCompatActivity {
     }
 
     /**
-     * Sets the list favorite chargingstations and sorts them by distance
+     * Sets the list of favorite Charging Stations and sorts them by distance to the user
      *
      * @throws InterruptedException Throws exception if thread failed
      */
     void populateFavoriteList() throws InterruptedException {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                ActivityCompat.checkSelfPermission(this,
+                        Manifest.permission.ACCESS_COARSE_LOCATION)
                         != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, permissions, MY_PERMISSIONS);
         }
@@ -89,19 +93,24 @@ public class FavoriteActivity extends AppCompatActivity {
         AtomicReference<List<chargingStation>> dbList = new AtomicReference<>();
         Thread dbListThread;
         if (!isServicetechniker.getBoolean("isServicetechniker", false)) {
-            dbListThread = new Thread(() -> dbList.set(database.chargingStationDAO().getFavorites()));
+            dbListThread = new Thread(() ->
+                    dbList.set(database.chargingStationDAO().getFavorites()));
         } else {
-            dbListThread = new Thread(() -> dbList.set(database.chargingStationDAO().getNotWorkingChargingStations()));
+            dbListThread = new Thread(() ->
+                    dbList.set(database.chargingStationDAO().getNotWorkingChargingStations()));
         }
         dbListThread.start();
         dbListThread.join();
 
-        FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        FusedLocationProviderClient fusedLocationClient =
+                LocationServices.getFusedLocationProviderClient(this);
         fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
             if (location != null) {
-                LatLng currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
+                LatLng currentLocation = new LatLng(location.getLatitude(),
+                        location.getLongitude());
                 for (chargingStation favorite : dbList.get()) {
-                    LatLng favoriteCoordination = new LatLng(favorite.getLatitude(), favorite.getLongitude());
+                    LatLng favoriteCoordination = new LatLng(favorite.getLatitude(),
+                            favorite.getLongitude());
                     if (checkIsInDistance(favoriteCoordination, currentLocation, progressValue)) {
                         mFavoriteChargingStations.add(favorite);
                     }
@@ -119,7 +128,8 @@ public class FavoriteActivity extends AppCompatActivity {
     }
 
     /**
-     * When activity is resumed, initialise NavigationBar, RecyclerView and reload favorite chargingstations
+     * When activity is resumed, initialise NavigationBar, RecyclerView and reload favorite
+     * Charging Stations
      */
     @Override
     protected void onResume() {
@@ -131,13 +141,13 @@ public class FavoriteActivity extends AppCompatActivity {
     }
 
     /**
-     * Populates the list of favorite chargingstations
+     * Populates the list of favorite Charging Stations
      */
     private void setList() {
         try {
             populateFavoriteList();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            Log.e("error", e.toString());
         }
     }
 
@@ -161,17 +171,18 @@ public class FavoriteActivity extends AppCompatActivity {
         navView.setSelectedItemId(R.id.navigation_favorites);
         navView.getMenu().performIdentifierAction(R.id.navigation_favorites, 0);
         navView.setOnItemSelectedListener(item -> {
-            switch (item.getItemId()) {
-                case R.id.navigation_home:
-                    startActivity(new Intent(getApplicationContext(), MainActivity.class));
-                    overridePendingTransition(0, 0);
-                    return true;
-                case R.id.navigation_favorites:
-                    return true;
-                case R.id.navigation_map:
-                    startActivity(new Intent(getApplicationContext(), MapActivity.class));
-                    overridePendingTransition(0, 0);
-                    return true;
+            if (item.getItemId() == R.id.navigation_home) {
+                startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                overridePendingTransition(0, 0);
+                return true;
+            }
+            if (item.getItemId() == R.id.navigation_favorites) {
+                return true;
+            }
+            if (item.getItemId() == R.id.navigation_map) {
+                startActivity(new Intent(getApplicationContext(), MapActivity.class));
+                overridePendingTransition(0, 0);
+                return true;
             }
             return false;
         });
@@ -219,7 +230,8 @@ public class FavoriteActivity extends AppCompatActivity {
      * @param maxDistance         Maximum distance
      * @return Return if the location is in distance to the last location
      */
-    private boolean checkIsInDistance(LatLng favoriteCoordinates, LatLng lastCoordinates, int maxDistance) {
+    private boolean checkIsInDistance(LatLng favoriteCoordinates, LatLng lastCoordinates,
+                                      int maxDistance) {
         return checkDistance(favoriteCoordinates, lastCoordinates) <= maxDistance;
     }
 
@@ -230,7 +242,8 @@ public class FavoriteActivity extends AppCompatActivity {
      * @param lastCoordinates     Coordinate of user
      * @return Distance to last coordinates
      */
-    private int checkDistance(@NonNull LatLng favoriteCoordinates, @NonNull LatLng lastCoordinates) {
+    private int checkDistance(@NonNull LatLng favoriteCoordinates,
+                              @NonNull LatLng lastCoordinates) {
         Location currentLocation = new Location(LocationManager.GPS_PROVIDER);
         currentLocation.setLatitude(lastCoordinates.latitude);
         currentLocation.setLongitude(lastCoordinates.longitude);
@@ -243,6 +256,4 @@ public class FavoriteActivity extends AppCompatActivity {
         distance /= 1000;
         return distance;
     }
-
-
 }

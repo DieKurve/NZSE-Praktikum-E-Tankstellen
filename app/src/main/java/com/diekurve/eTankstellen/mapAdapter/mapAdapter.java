@@ -1,8 +1,9 @@
-package de.hda.nzse22.mapAdapter;
+package com.diekurve.eTankstellen.mapAdapter;
 
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,10 +17,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
-import de.hda.nzse22.R;
-import de.hda.nzse22.model.ChargingStationDAO;
-import de.hda.nzse22.model.NZSEDatabase;
-import de.hda.nzse22.model.chargingStation;
+import com.diekurve.eTankstellen.R;
+import com.diekurve.eTankstellen.model.ChargingStationDAO;
+import com.diekurve.eTankstellen.model.chargingStations;
+import com.diekurve.eTankstellen.model.chargingStation;
 
 public class mapAdapter extends RecyclerView.Adapter<mapAdapter.ViewHolder> {
 
@@ -91,8 +92,8 @@ public class mapAdapter extends RecyclerView.Adapter<mapAdapter.ViewHolder> {
 
 
         viewHolder.navigationButton.setOnClickListener(l -> {
-            String geoLocation = "google.navigation:q=" + localDataSet.get(position).getLatitude() + "," +
-                    localDataSet.get(position).getLongitude();
+            String geoLocation = "google.navigation:q=" + localDataSet.get(position).getLatitude()
+                    + "," + localDataSet.get(position).getLongitude();
             Uri gmmIntentUri = Uri.parse(geoLocation);
             Intent navigationIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
             navigationIntent.setPackage("com.google.android.apps.maps");
@@ -117,14 +118,14 @@ public class mapAdapter extends RecyclerView.Adapter<mapAdapter.ViewHolder> {
      * @param position Position of Element which will be updated
      */
     private void updateChargingStation(int position) {
-        NZSEDatabase db = NZSEDatabase.getDatabase(mContext);
+        chargingStations db = chargingStations.getDatabase(mContext);
         ChargingStationDAO dao = db.chargingStationDAO();
         Thread updateThread = new Thread(() -> dao.update(localDataSet.get(position)));
         updateThread.start();
         try {
             updateThread.join();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            Log.e("error", e.toString());
         }
     }
 

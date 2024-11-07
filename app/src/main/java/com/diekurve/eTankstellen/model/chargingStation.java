@@ -1,4 +1,4 @@
-package de.hda.nzse22.model;
+package com.diekurve.eTankstellen.model;
 
 
 import androidx.annotation.NonNull;
@@ -129,94 +129,6 @@ public class chargingStation {
 
     public String getPlugType1() {
         return mPlugType1;
-    }
-
-    public int getUid() {
-        return uid;
-    }
-
-    public void setUid(int uid) {
-        this.uid = uid;
-    }
-
-    public String getmOperator() {
-        return mOperator;
-    }
-
-    public String getmAddress() {
-        return mAddress;
-    }
-
-    public String getmCity() {
-        return mCity;
-    }
-
-    public String getmCounty() {
-        return mCounty;
-    }
-
-    public float getmLatitude() {
-        return mLatitude;
-    }
-
-    public float getmLongitude() {
-        return mLongitude;
-    }
-
-    public float getmMaxPower() {
-        return mMaxPower;
-    }
-
-    public Integer getmAmountOfChargingPoints() {
-        return mAmountOfChargingPoints;
-    }
-
-    public String getmKindofChargingStation() {
-        return mKindofChargingStation;
-    }
-
-    public boolean ismWorking() {
-        return mWorking;
-    }
-
-    public void setmWorking(boolean mWorking) {
-        this.mWorking = mWorking;
-    }
-
-    public String getmPlugType1() {
-        return mPlugType1;
-    }
-
-    public void setmPlugType1(String mPlugType1) {
-        this.mPlugType1 = mPlugType1;
-    }
-
-    public String getmPlugType2() {
-        return mPlugType2;
-    }
-
-    public void setmPlugType2(String mPlugType2) {
-        this.mPlugType2 = mPlugType2;
-    }
-
-    public String getmPlugType3() {
-        return mPlugType3;
-    }
-
-    public void setmPlugType3(String mPlugType3) {
-        this.mPlugType3 = mPlugType3;
-    }
-
-    public String getmPlugType4() {
-        return mPlugType4;
-    }
-
-    public void setmPlugType4(String mPlugType4) {
-        this.mPlugType4 = mPlugType4;
-    }
-
-    public boolean isFavorite() {
-        return isFavorite;
     }
 
     public void setFavorite(boolean favorite) {

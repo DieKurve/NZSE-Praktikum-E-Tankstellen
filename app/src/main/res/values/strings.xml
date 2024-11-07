@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">NZSE_2022</string>
+    <string name="app_name" translatable="false">E-Tankstellen</string>
     <string name="action_settings">Settings</string>
     <!-- Strings used for fragments for navigation -->
     <string name="home_fragment_label" translatable="false">Home Fragment</string>

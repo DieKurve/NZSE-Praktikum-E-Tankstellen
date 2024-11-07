@@ -1,4 +1,4 @@
-package de.hda.nzse22.download;
+package com.diekurve.eTankstellen.download;
 
 import android.Manifest;
 import android.content.ComponentName;
@@ -29,29 +29,24 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import de.hda.nzse22.R;
-import de.hda.nzse22.model.ChargingStationDAO;
-import de.hda.nzse22.model.NZSEDatabase;
-import de.hda.nzse22.model.chargingStation;
+import com.diekurve.eTankstellen.R;
+import com.diekurve.eTankstellen.model.ChargingStationDAO;
+import com.diekurve.eTankstellen.model.chargingStations;
+import com.diekurve.eTankstellen.model.chargingStation;
 
 public class GetChargingStationsActivity extends AppCompatActivity {
 
     final int MY_PERMISSIONS_STORAGE_INTENRET = 1;
-    private final String filePath = "NZSE";
-    private final String ladestationen = "ladestationen.txt"; // Name der lokalen Datei
-    private final String url =
-            "https://data.bundesnetzagentur.de/Bundesnetzagentur/SharedDocs/Downloads/DE/Sachgebiete/Energie/Unternehmen_Institutionen/E_Mobilitaet/Ladesaeulenregister.csv";
     boolean mBound = false;
-    private NZSEDatabase database;
+    private chargingStations database;
     private Intent returnIntent;
-    private String csvFile = "Empty"; // liefert die Downloadfunktion
-    private RequestService mService = null;
-    private RequestService.RequestServiceBinder binder;
 
     /**
      * Reads downloaded csv file and cleans each line and creates new chargingStation objects and inserts them into the database
@@ -61,15 +56,17 @@ public class GetChargingStationsActivity extends AppCompatActivity {
         List<chargingStation> allChargingStations = new ArrayList<>();
         int rows = 0;
         try {
-            String[] csvline; // eingelesene csvZeile
+            String[] csvline; // eingelesene csv-Zeile
             // lokale Datei ansprechen
             File myFile = new File(csvFile);
             FileInputStream fIn = new FileInputStream(myFile);
             InputStreamReader isr = new InputStreamReader(fIn, "ISO_8859-1");
             BufferedReader myReader = new BufferedReader(isr);
 
-            CSVParser parser = new CSVParserBuilder().withSeparator(';').withIgnoreQuotations(false).build();
-            CSVReader csvReader = new CSVReaderBuilder(myReader).withSkipLines(11).withCSVParser(parser).build();
+            CSVParser parser =
+                    new CSVParserBuilder().withSeparator(';').withIgnoreQuotations(false).build();
+            CSVReader csvReader =
+                    new CSVReaderBuilder(myReader).withSkipLines(11).withCSVParser(parser).build();
 
             System.out.println("CSV-Datei einlesen startet ");
 
@@ -81,7 +78,8 @@ public class GetChargingStationsActivity extends AppCompatActivity {
             myReader.close();
 
             System.out.println("Chargingstations: " + rows);
-            Thread databaseInsertThread = new Thread(() -> chargingStationDAO.insertAll(allChargingStations));
+            Thread databaseInsertThread =
+                    new Thread(() -> chargingStationDAO.insertAll(allChargingStations));
             databaseInsertThread.start();
             databaseInsertThread.join();
         } catch (CsvValidationException csvValidationException) {
@@ -135,11 +133,13 @@ public class GetChargingStationsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setTitle("Ladestationen");
         setContentView(R.layout.activity_download);
-        database = NZSEDatabase.getDatabase(getApplicationContext());
+        database = chargingStations.getDatabase(getApplicationContext());
 
         // Permission grant/gewähren
-        String[] permissions = {Manifest.permission.INTERNET, Manifest.permission.WRITE_EXTERNAL_STORAGE};
-        ActivityCompat.requestPermissions(this, permissions, MY_PERMISSIONS_STORAGE_INTENRET);
+        String[] permissions = {Manifest.permission.INTERNET,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        ActivityCompat.requestPermissions(this, permissions,
+                MY_PERMISSIONS_STORAGE_INTENRET);
 
         // Bind to RequestService
         Intent myIntent = new Intent(this, RequestService.class);
@@ -153,9 +153,11 @@ public class GetChargingStationsActivity extends AppCompatActivity {
      * @param grantResults Granted permissions
      */
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == MY_PERMISSIONS_STORAGE_INTENRET) {// wenn die Anfrage gecancelled wird, sind die Ergebnisfelder leer.
+        if (requestCode == MY_PERMISSIONS_STORAGE_INTENRET) {
+            // wenn die Anfrage gecancelled wird, sind die Ergebnisfelder leer.
             if (grantResults.length > 0) {
                 for (int grant : grantResults) {
                     if (grant == PackageManager.PERMISSION_GRANTED)
@@ -169,7 +171,7 @@ public class GetChargingStationsActivity extends AppCompatActivity {
             }
         }
     }    /**
-     * Creates a new CerviceConnection
+     * Creates a new ServiceConnection
      */
     private final ServiceConnection mConnection = new ServiceConnection() {
 
@@ -183,7 +185,13 @@ public class GetChargingStationsActivity extends AppCompatActivity {
             // callback setzen
             mService.setCallback(getHandler());
             System.out.println("DOWNLOAD starten");
-            binder.runURLDownload("download", url, filePath, ladestationen);
+            URL url = new URL("https://data.bundesnetzagentur.de/Bundesnetzagentur/" +
+                    "SharedDocs/Downloads/DE/Sachgebiete/Energie/Unternehmen_Institutionen/" +
+                    "E_Mobilitaet/Ladesaeulenregister.csv");
+
+            BufferedReader input = new BufferedReader(new InputStreamReader(url.openStream()),
+                    "ISO_8859-1");
+            Reader reader = new CSVReader(input);
             mBound = true;
         }
 
@@ -194,7 +202,7 @@ public class GetChargingStationsActivity extends AppCompatActivity {
     };
 
     /**
-     * If activity finshed unbind service
+     * If activity finished unbind service
      */
     @Override
     public void finish() {
@@ -202,7 +210,4 @@ public class GetChargingStationsActivity extends AppCompatActivity {
         unbindService(mConnection);
         super.finish();
     }
-
-
-
 } // GetChargingStationActivity

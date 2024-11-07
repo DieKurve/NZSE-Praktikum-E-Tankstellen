@@ -1,4 +1,4 @@
-package de.hda.nzse22;
+package com.diekurve.eTankstellen;
 
 import android.Manifest;
 import android.content.Intent;
@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,9 +28,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-import de.hda.nzse22.mapAdapter.mapAdapter;
-import de.hda.nzse22.model.NZSEDatabase;
-import de.hda.nzse22.model.chargingStation;
+import com.diekurve.eTankstellen.mapAdapter.mapAdapter;
+import com.diekurve.eTankstellen.model.chargingStations;
+import com.diekurve.eTankstellen.model.chargingStation;
 
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
@@ -37,7 +38,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     final int MY_PERMISSIONS = 1;
     private final String[] permissions = {Manifest.permission.ACCESS_COARSE_LOCATION};
     private GoogleMap mGoogleMap;
-    private NZSEDatabase database;
+    private chargingStations database;
     private List<chargingStation> chargingStationList = new ArrayList<>();
     private RecyclerView mRecyclerViewMap;
     private mapAdapter mAdapter;
@@ -50,18 +51,19 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
      * @param savedInstance If the activity is being re-initialized after previously being shut down
      *                      then this Bundle contains the data it most recently supplied in
      *                      onSaveInstanceState(Bundle).
-     *                      (https://developer.android.com/reference/android/app/Activity#onCreate(android.os.Bundle))
+     *                      (https://developer.android.com/reference/android/app/
+     *                      Activity#onCreate(android.os.Bundle))
      */
     @Override
     protected void onCreate(Bundle savedInstance) {
 
         super.onCreate(savedInstance);
         setContentView(R.layout.activity_map);
-        database = NZSEDatabase.getDatabase(getApplicationContext());
+        database = chargingStations.getDatabase(getApplicationContext());
         try {
             chargingStationList = loadChargingStations();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            Log.e("error", e.toString());
         }
         System.out.println(chargingStationList.size());
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
@@ -108,7 +110,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public void onMapReady(@NonNull GoogleMap googleMap) {
         mGoogleMap = googleMap;
         mGoogleMap.getUiSettings().setMyLocationButtonEnabled(true);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, permissions, MY_PERMISSIONS);
             return;
         }
@@ -134,11 +139,15 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             chargingStationLocation.setLongitude(chargingStatonsObject.getLongitude());
             chargingStationLocation.setLatitude(chargingStatonsObject.getLatitude());
             if (checkIsInDistance(chargingStationLocation, lastLocation, 25)) {
-                LatLng chargingStationCoordinates = new LatLng(chargingStatonsObject.getLatitude(), chargingStatonsObject.getLongitude());
-                mGoogleMap.addMarker(new MarkerOptions().position(chargingStationCoordinates).title(chargingStatonsObject.getOperator()));
+                LatLng chargingStationCoordinates = new LatLng(chargingStatonsObject.getLatitude(),
+                        chargingStatonsObject.getLongitude());
+                mGoogleMap.addMarker(
+                        new MarkerOptions().position(chargingStationCoordinates).title(
+                                chargingStatonsObject.getOperator()));
                 mGoogleMap.setOnMarkerClickListener(marker -> {
                     mRecyclerViewMap = findViewById(R.id.recyclerViewMapMarker);
-                    LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
+                    LinearLayoutManager linearLayoutManager =
+                            new LinearLayoutManager(getApplicationContext());
                     mRecyclerViewMap.setLayoutManager(linearLayoutManager);
                     double longitude = marker.getPosition().longitude;
                     double latitude = marker.getPosition().latitude;
@@ -146,7 +155,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     try {
                         mAdapter = new mapAdapter(loadChargingStationWithCoordinates(longitude, latitude));
                     } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        Log.e("error", e.toString());
                     }
                     mRecyclerViewMap.setAdapter(mAdapter);
                     return false;
@@ -164,7 +173,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
      */
     private List<chargingStation> loadChargingStations() throws InterruptedException {
         AtomicReference<List<chargingStation>> chargingStations = new AtomicReference<>();
-        Thread dbListThread = new Thread(() -> chargingStations.set(database.chargingStationDAO().getAll()));
+        Thread dbListThread = new Thread(() ->
+                chargingStations.set(database.chargingStationDAO().getAll()));
         dbListThread.start();
         dbListThread.join();
         return chargingStations.get();
@@ -178,9 +188,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
      * @return List of chargingstations at the given coordinates
      * @throws InterruptedException Throws exception if an error with the thread occurs
      */
-    private List<chargingStation> loadChargingStationWithCoordinates(double longitude, double latitude) throws InterruptedException {
+    private List<chargingStation> loadChargingStationWithCoordinates(double longitude,
+                                                                     double latitude)
+            throws InterruptedException {
         AtomicReference<List<chargingStation>> chargingStations = new AtomicReference<>();
-        Thread dbListThread = new Thread(() -> chargingStations.set(database.chargingStationDAO().getChargingStationsWithCoordinates(latitude, longitude)));
+        Thread dbListThread = new Thread(() ->
+                chargingStations.set(database.chargingStationDAO().
+                        getChargingStationsWithCoordinates(latitude, longitude)));
         dbListThread.start();
         dbListThread.join();
         return chargingStations.get();
@@ -194,8 +208,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
      * @param maxDistance   Maximum distance
      * @return Return if the location is in distance to the last location
      */
-    private boolean checkIsInDistance(Location checkLocation, LatLng lastLocation, int maxDistance) {
-
+    private boolean checkIsInDistance(Location checkLocation, LatLng lastLocation,
+                                      int maxDistance) {
         Location currentLocation = new Location(LocationManager.GPS_PROVIDER);
         currentLocation.setLatitude(lastLocation.latitude);
         currentLocation.setLongitude(lastLocation.longitude);
