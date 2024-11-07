@@ -13,7 +13,6 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -27,7 +26,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.diekurve.eTankstellen.download.GetChargingStationsActivity;
 import com.diekurve.eTankstellen.favoritesAdapter.favoritesAdapter;
 import com.diekurve.eTankstellen.model.ChargingStationDAO;
 import com.diekurve.eTankstellen.model.chargingStation;
@@ -66,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
         //initServiceTechnikerSwitch();
         setList();
         initNavView();
-        //Integer amountofChargingStations = 29612;
+//      Integer amountofChargingStations = 29612;
 
 //        if (getDatabaseSize() < amountofChargingStations) {
 //            startActivity(new Intent(getApplicationContext(), GetChargingStationsActivity.class));

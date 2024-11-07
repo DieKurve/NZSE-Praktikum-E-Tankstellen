@@ -1,22 +1,19 @@
 package com.diekurve.eTankstellen.download;
 
 import android.Manifest;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.IBinder;
-import android.os.Looper;
-import android.os.Message;
-import android.widget.Toast;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
+import com.diekurve.eTankstellen.R;
+import com.diekurve.eTankstellen.model.ChargingStationDAO;
+import com.diekurve.eTankstellen.model.chargingStation;
+import com.diekurve.eTankstellen.model.chargingStations;
 import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
@@ -24,49 +21,39 @@ import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvValidationException;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.diekurve.eTankstellen.R;
-import com.diekurve.eTankstellen.model.ChargingStationDAO;
-import com.diekurve.eTankstellen.model.chargingStations;
-import com.diekurve.eTankstellen.model.chargingStation;
-
 public class GetChargingStationsActivity extends AppCompatActivity {
 
-    final int MY_PERMISSIONS_STORAGE_INTENRET = 1;
+    final int MY_PERMISSIONS_STORAGE_INTERNET = 1;
     boolean mBound = false;
     private chargingStations database;
     private Intent returnIntent;
 
     /**
-     * Reads downloaded csv file and cleans each line and creates new chargingStation objects and inserts them into the database
+     * Reads downloaded csv file and cleans each line and creates new chargingStation objects and
+     * inserts them into the database
      */
     public void csvRead() throws InterruptedException {
         ChargingStationDAO chargingStationDAO = database.chargingStationDAO();
         List<chargingStation> allChargingStations = new ArrayList<>();
         int rows = 0;
         try {
-            String[] csvline; // eingelesene csv-Zeile
-            // lokale Datei ansprechen
-            File myFile = new File(csvFile);
-            FileInputStream fIn = new FileInputStream(myFile);
-            InputStreamReader isr = new InputStreamReader(fIn, "ISO_8859-1");
-            BufferedReader myReader = new BufferedReader(isr);
+            String[] csvline;
+            URL url = new URL("https://data.bundesnetzagentur.de/Bundesnetzagentur/" +
+                    "SharedDocs/Downloads/DE/Sachgebiete/Energie/Unternehmen_Institutionen/" +
+                    "E_Mobilitaet/Ladesaeulenregister.csv");
 
+            BufferedReader input = new BufferedReader(new InputStreamReader(url.openStream()));
             CSVParser parser =
                     new CSVParserBuilder().withSeparator(';').withIgnoreQuotations(false).build();
             CSVReader csvReader =
-                    new CSVReaderBuilder(myReader).withSkipLines(11).withCSVParser(parser).build();
+                    new CSVReaderBuilder(input).withSkipLines(11).withCSVParser(parser).build();
 
             System.out.println("CSV-Datei einlesen startet ");
 
@@ -75,55 +62,48 @@ public class GetChargingStationsActivity extends AppCompatActivity {
                 rows++;
             }
             csvReader.close();
-            myReader.close();
 
             System.out.println("Chargingstations: " + rows);
             Thread databaseInsertThread =
                     new Thread(() -> chargingStationDAO.insertAll(allChargingStations));
             databaseInsertThread.start();
             databaseInsertThread.join();
-        } catch (CsvValidationException csvValidationException) {
-            csvValidationException.printStackTrace();
-        } catch (FileNotFoundException fileNotFoundException) {
-            fileNotFoundException.printStackTrace();
-        } catch (UnsupportedEncodingException unsupportedEncodingException) {
-            unsupportedEncodingException.printStackTrace();
-        } catch (IOException ioException) {
-            ioException.printStackTrace();
+        } catch (CsvValidationException | IOException csvValidationException) {
+            Log.e("err", csvValidationException.toString());
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            e.printStackTrace();
+            Log.e("err", e.toString());
         } finally {
             finish();
         }
         // try-catch
     } // csvRead
 
-    /**
-     * Sets Handler:
-     * Callbacks associated for Service Binding, forward to bindService() for result handling
-     *
-     * @return - Handler
-     */
-    private Handler getHandler() {
-        return new Handler(Looper.getMainLooper()) {
-            public void handleMessage(Message msg) {
-                Bundle bundle = msg.getData();
-                csvFile = (String) bundle.get(RequestService.FILEPATH);
-                // Datei einlesen
-
-                String uniqueId = (String) bundle.get(RequestService.UNIQUEID);
-                String note = (String) bundle.get(RequestService.NOTIFICATION);
-                Toast.makeText(GetChargingStationsActivity.this, uniqueId + " file: " +
-                        csvFile + " Bytes: " + note, Toast.LENGTH_LONG).show();
-                try {
-                    csvRead();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }// handleMessage
-        };
-    }    // Serviceverbindung einrichten
+//    /**
+//     * Sets Handler:
+//     * Callbacks associated for Service Binding, forward to bindService() for result handling
+//     *
+//     * @return - Handler
+//     */
+//    private Handler getHandler() {
+//        return new Handler(Looper.getMainLooper()) {
+//            public void handleMessage(Message msg) {
+//                Bundle bundle = msg.getData();
+//                csvFile = (String) bundle.get(RequestService.FILEPATH);
+//                // Datei einlesen
+//
+//                String uniqueId = (String) bundle.get(RequestService.UNIQUEID);
+//                String note = (String) bundle.get(RequestService.NOTIFICATION);
+//                Toast.makeText(GetChargingStationsActivity.this, uniqueId + " file: " +
+//                        csvFile + " Bytes: " + note, Toast.LENGTH_LONG).show();
+//                try {
+//                    csvRead();
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//            }// handleMessage
+//        };
+//    }    // Serviceverbindung einrichten
 
     /**
      * @param savedInstanceState -
@@ -136,14 +116,13 @@ public class GetChargingStationsActivity extends AppCompatActivity {
         database = chargingStations.getDatabase(getApplicationContext());
 
         // Permission grant/gewähren
-        String[] permissions = {Manifest.permission.INTERNET,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        String[] permissions = {Manifest.permission.INTERNET};
         ActivityCompat.requestPermissions(this, permissions,
-                MY_PERMISSIONS_STORAGE_INTENRET);
+                MY_PERMISSIONS_STORAGE_INTERNET);
 
         // Bind to RequestService
-        Intent myIntent = new Intent(this, RequestService.class);
-        bindService(myIntent, mConnection, Context.BIND_AUTO_CREATE);
+//        Intent myIntent = new Intent(this, RequestService.class);
+//        bindService(myIntent, mConnection, Context.BIND_AUTO_CREATE);
 
     }
 
@@ -156,7 +135,7 @@ public class GetChargingStationsActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == MY_PERMISSIONS_STORAGE_INTENRET) {
+        if (requestCode == MY_PERMISSIONS_STORAGE_INTERNET) {
             // wenn die Anfrage gecancelled wird, sind die Ergebnisfelder leer.
             if (grantResults.length > 0) {
                 for (int grant : grantResults) {
@@ -170,44 +149,38 @@ public class GetChargingStationsActivity extends AppCompatActivity {
                 }
             }
         }
-    }    /**
-     * Creates a new ServiceConnection
-     */
-    private final ServiceConnection mConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            // an den RequestService binden,
-            // Service-Objekt casting auf IBinder und LocalService instance erhalten
-            binder = (RequestService.RequestServiceBinder) service;
-            System.out.println(binder);
-            mService = binder.getService();
-            // callback setzen
-            mService.setCallback(getHandler());
-            System.out.println("DOWNLOAD starten");
-            URL url = new URL("https://data.bundesnetzagentur.de/Bundesnetzagentur/" +
-                    "SharedDocs/Downloads/DE/Sachgebiete/Energie/Unternehmen_Institutionen/" +
-                    "E_Mobilitaet/Ladesaeulenregister.csv");
-
-            BufferedReader input = new BufferedReader(new InputStreamReader(url.openStream()),
-                    "ISO_8859-1");
-            Reader reader = new CSVReader(input);
-            mBound = true;
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            mBound = false;
-        }
-    };
+    }
+//    /**
+//     * Creates a new ServiceConnection
+//    */
+//    private final ServiceConnection mConnection = new ServiceConnection() {
+//
+//        @Override
+//        public void onServiceConnected(ComponentName className, IBinder service) {
+//            // an den RequestService binden,
+//            // Service-Objekt casting auf IBinder und LocalService instance erhalten
+//            binder = (RequestService.RequestServiceBinder) service;
+//            System.out.println(binder);
+//            mService = binder.getService();
+//            // callback setzen
+//            mService.setCallback(getHandler());
+//            System.out.println("DOWNLOAD starten");
+//
+//            mBound = true;
+//        }
+//
+//        @Override
+//        public void onServiceDisconnected(ComponentName arg0) {
+//            mBound = false;
+//        }
+//    };
 
     /**
      * If activity finished unbind service
      */
     @Override
     public void finish() {
-        System.out.println("******  bye bye");
-        unbindService(mConnection);
+        //unbindService(mConnection);
         super.finish();
     }
 } // GetChargingStationActivity

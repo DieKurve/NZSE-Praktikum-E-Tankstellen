@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    >
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
@@ -43,9 +42,11 @@
             android:launchMode="singleInstance" />
         <activity android:name=".FavoriteActivity" />
 
+        <!--
         <service
             android:name=".download.RequestService"
             android:enabled="true" />
+            -->
     </application>
 
 
