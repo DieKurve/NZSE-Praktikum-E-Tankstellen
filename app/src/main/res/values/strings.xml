@@ -1,0 +1,36 @@
+<resources>
+    <string name="app_name" translatable="false">NZSE_2022</string>
+    <string name="action_settings">Settings</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="home_fragment_label" translatable="false">Home Fragment</string>
+    <string name="map_fragment_label" translatable="false">Map Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+    <string name="google_maps" translatable="false">Google Maps</string>
+    <string name="google_maps_key" translatable="false">INSERT_YOUR_GOOGLE_MAPS_KEY</string>
+    <string name="map_fragment" translatable="false" />
+    <string name="textview" translatable="false">TextView</string>
+    <string name="button">Button</string>
+    <string name="title_notifications" translatable="false" />
+    <string name="title_dashboard" translatable="false" />
+    <string name="title_home" translatable="false" />
+    <string name="favoriten">Favoriten</string>
+    <string name="download">Download</string>
+    <string name="search">Search</string>
+    <string name="element_text" translatable="false" />
+    <string name="distance" translatable="false">Distance</string>
+    <string name="starte_route">Starte Route</string>
+    <string name="report">Report</string>
+    <string name="status" translatable="false">Status</string>
+    <string name="plugtype" translatable="false">Plugtype</string>
+    <string name="address" translatable="false">Address</string>
+    <string name="operator" translatable="false">Operator</string>
+    <string name="textviewDownload" translatable="false">Download</string>
+    <string name="city">City</string>
+    <string name="address_recycler">Address</string>
+    <string name="operator_recycler">Operator</string>
+    <string name="mainText">Nahe Ladestationen</string>
+    <string name="servicetechniker">Servicetechniker</string>
+    <string name="repariert">repariert</string>
+</resources>
