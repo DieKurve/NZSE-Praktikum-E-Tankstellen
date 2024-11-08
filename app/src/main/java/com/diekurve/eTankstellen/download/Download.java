@@ -1,10 +1,12 @@
 package com.diekurve.eTankstellen.download;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.diekurve.eTankstellen.model.ChargingStationDAO;
+//import com.diekurve.eTankstellen.model.ChargingStationRepository;
 import com.diekurve.eTankstellen.model.chargingStation;
-import com.diekurve.eTankstellen.model.chargingStations;
+import com.diekurve.eTankstellen.model.ChargingStationDatabase;
 import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
@@ -19,14 +21,14 @@ import java.util.List;
 
 public class Download implements Runnable {
 
-    private chargingStations database;
 
     /**
      * Reads csv file and cleans each line and creates new chargingStation objects and
      * inserts them into the database
      */
-    public void csvRead() throws InterruptedException {
-        ChargingStationDAO chargingStationDAO = database.chargingStationDAO();
+    public static List<chargingStation> csvRead() throws InterruptedException {
+
+        //ChargingStationDAO chargingStationDAO = ChargingStationDAO.getDatabase(ctx).chargingStationDAO();
         List<chargingStation> allChargingStations = new ArrayList<>();
 
         try {
@@ -47,12 +49,13 @@ public class Download implements Runnable {
             Log.i("Info", "Charging stations: " + csvReader.getLinesRead());
             csvReader.close();
             Log.i("Info", "Finished reading csv-file");
-            chargingStationDAO.insertAll(allChargingStations);
+            //chargingStationDAO.insertAll(allChargingStations);
 
         } catch (Exception e) {
             Log.e("err", e.toString());
         }
         // try-catch
+        return allChargingStations;
     } // csvRead
 
     @Override

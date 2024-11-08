@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.diekurve.eTankstellen.favoritesAdapter.favoritesAdapter;
-import com.diekurve.eTankstellen.model.chargingStations;
+import com.diekurve.eTankstellen.model.ChargingStationDatabase;
 import com.diekurve.eTankstellen.model.chargingStation;
 
 public class FavoriteActivity extends AppCompatActivity {
@@ -39,7 +39,7 @@ public class FavoriteActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private favoritesAdapter mAdapter;
     private List<chargingStation> mFavoriteChargingStations = null;
-    private chargingStations database;
+    private ChargingStationDatabase database;
     private SeekBar distanceBar;
     private TextView distance;
     private int progressValue = 10;
@@ -59,7 +59,7 @@ public class FavoriteActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_favorites);
-        database = chargingStations.getDatabase(getApplicationContext());
+        //database = chargingStations.getDatabase(getApplicationContext());
         initSharedPreferences();
         setList();
         initNavBar();
@@ -92,7 +92,7 @@ public class FavoriteActivity extends AppCompatActivity {
 
         AtomicReference<List<chargingStation>> dbList = new AtomicReference<>();
         Thread dbListThread;
-        if (!isServicetechniker.getBoolean("isServicetechniker", false)) {
+        /*if (!isServicetechniker.getBoolean("isServicetechniker", false)) {
             dbListThread = new Thread(() ->
                     dbList.set(database.chargingStationDAO().getFavorites()));
         } else {
@@ -100,7 +100,7 @@ public class FavoriteActivity extends AppCompatActivity {
                     dbList.set(database.chargingStationDAO().getNotWorkingChargingStations()));
         }
         dbListThread.start();
-        dbListThread.join();
+        dbListThread.join();*/
 
         FusedLocationProviderClient fusedLocationClient =
                 LocationServices.getFusedLocationProviderClient(this);

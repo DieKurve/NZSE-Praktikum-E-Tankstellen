@@ -5,7 +5,6 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -17,14 +16,12 @@ import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
+import com.diekurve.eTankstellen.download.Download;
+import com.diekurve.eTankstellen.model.ChargingStationDatabase;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 import com.diekurve.eTankstellen.favoritesAdapter.favoritesAdapter;
 import com.diekurve.eTankstellen.model.ChargingStationDAO;
@@ -37,12 +34,11 @@ public class MainActivity extends AppCompatActivity {
             Manifest.permission.INTERNET};
     List<chargingStation> chargingStations = null;
     List<chargingStation> mNearChargingStations = null;
-    private com.diekurve.eTankstellen.model.chargingStations database;
+    private ChargingStationDatabase database;
     private ChargingStationDAO chargingStationDAO;
     private BottomNavigationView navView;
     private favoritesAdapter mAdapter;
     private RecyclerView mRecyclerView;
-    //private SwitchCompat servicetechnikerSwitch;
     private SharedPreferences sharedPreferences;
 
 
@@ -61,10 +57,17 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ActivityCompat.requestPermissions(this, permissions, MY_PERMISSIONS);
         createDatabase();
-        //initServiceTechnikerSwitch();
         setList();
         initNavView();
-//      Integer amountofChargingStations = 29612;
+
+        try {
+            List<chargingStation> stations = Download.csvRead();
+            database.charingstationDao().insertAll(stations);
+        } catch (InterruptedException e) {
+            Log.e("Error", e.toString());
+            throw new RuntimeException(e);
+        }
+//        deleteDatabase();
 
 //        if (getDatabaseSize() < amountofChargingStations) {
 //            startActivity(new Intent(getApplicationContext(), GetChargingStationsActivity.class));
@@ -74,30 +77,6 @@ public class MainActivity extends AppCompatActivity {
 //        }
 
     }
-
-//    /**
-//     * Initializes the Servicetechniker Switch
-//     */
-//    private void initServiceTechnikerSwitch() {
-//        sharedPreferences = getSharedPreferences("NZSE_SS22", MODE_PRIVATE);
-//        servicetechnikerSwitch = findViewById(R.id.servicetechnikerSwitch);
-//        if (!sharedPreferences.contains("isServicetechniker")) {
-//            SharedPreferences.Editor checkServicetechniker = sharedPreferences.edit();
-//            checkServicetechniker.putBoolean("isServicetechniker", false);
-//            checkServicetechniker.apply();
-//        }
-//        servicetechnikerSwitch.setOnClickListener(l -> {
-//            SharedPreferences.Editor checkServicetechniker = sharedPreferences.edit();
-//            checkServicetechniker.putBoolean("isServicetechniker",
-//                    servicetechnikerSwitch.isChecked());
-//            checkServicetechniker.apply();
-//            try {
-//                populateChargingStation();
-//            } catch (InterruptedException e) {
-//                Log.e("error", e.toString());
-//            }
-//        });
-//    }
 
     /**
      * Initializes the NavigationView
@@ -140,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Populates the list of chargingstations
+     * Populates the list of charging stations
      */
     private void setList() {
         try {
@@ -151,11 +130,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Sets the list favorite chargingstations and sorts them by distance
+     * Sets the list favorite charging stations and sorts them by distance
      *
      * @throws InterruptedException Throws exception if thread failed
      */
-    private void populateStationList() throws InterruptedException {
+    /*private void populateStationList() throws InterruptedException {
         if (ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED &&
@@ -167,41 +146,35 @@ public class MainActivity extends AppCompatActivity {
 
         mNearChargingStations = new ArrayList<>();
 
-        if (sharedPreferences.getBoolean("isServicetechniker", false)) {
-            AtomicReference<List<chargingStation>> dbList = new AtomicReference<>();
-            Thread dbListThread = new Thread(() ->
-                    dbList.set(database.chargingStationDAO().getNotWorkingChargingStations()));
-
-            dbListThread.start();
-            dbListThread.join();
             chargingStations = dbList.get();
-        }
+        }*/
 
-        FusedLocationProviderClient fusedLocationClient =
-                LocationServices.getFusedLocationProviderClient(this);
-        fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
-            if (location != null) {
-                LatLng currentLocation = new LatLng(location.getLatitude(),
-                        location.getLongitude());
-                for (chargingStation favorite : chargingStations) {
-                    LatLng favoriteCoordination = new LatLng(favorite.getLatitude(),
-                            favorite.getLongitude());
-                    if (checkIsInDistance(favoriteCoordination, currentLocation, 25)) {
-                        mNearChargingStations.add(favorite);
-                    }
-                    mNearChargingStations.sort((o1, o2) -> {
-                        LatLng chargingStation1 = new LatLng(o1.getLatitude(), o1.getLongitude());
-                        LatLng chargingStation2 = new LatLng(o2.getLatitude(), o2.getLongitude());
-                        int distanceStation1 = checkDistance(chargingStation1, currentLocation);
-                        int distanceStation2 = checkDistance(chargingStation2, currentLocation);
-                        return Integer.compare(distanceStation1, distanceStation2);
-                    });
-                }
-                initRecycler();
-            }
-
-        });
-    }
+//        FusedLocationProviderClient fusedLocationClient =
+//                LocationServices.getFusedLocationProviderClient(this);
+//        fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
+//            if (location != null) {
+//                LatLng currentLocation = new LatLng(location.getLatitude(),
+//                        location.getLongitude());
+//                for (chargingStation favorite : chargingStations) {
+//                    LatLng favoriteCoordination = new LatLng(favorite.getLatitude(),
+//                            favorite.getLongitude());
+//                    if (checkIsInDistance(favoriteCoordination, currentLocation, 25)) {
+//                        mNearChargingStations.add(favorite);
+//                    }
+//                    mNearChargingStations.sort((o1, o2) -> {
+//                        LatLng chargingStation1 = new LatLng(o1.getLatitude(), o1.getLongitude());
+//                        LatLng chargingStation2 = new LatLng(o2.getLatitude(), o2.getLongitude());
+//                        int distanceStation1 = checkDistance(chargingStation1, currentLocation);
+//                        int distanceStation2 = checkDistance(chargingStation2, currentLocation);
+//                        return Integer.compare(distanceStation1, distanceStation2);
+//                    });
+//                }
+//
+//            }
+//
+//        });
+//        initRecycler();
+//    }
 
     /**
      * Checks if given Location is in near distance of given coordinates
@@ -242,50 +215,43 @@ public class MainActivity extends AppCompatActivity {
      * @throws InterruptedException Throws exception if thread fails
      */
     private void populateChargingStation() throws InterruptedException {
-        Thread populateThread = new Thread(() -> chargingStations = chargingStationDAO.getAll());
-        populateThread.start();
-        populateThread.join();
-        populateStationList();
+        new Thread(() -> chargingStations = chargingStationDAO.getAll()).start();
+
     }
 
     /**
      * Creates the database
      */
     private void createDatabase() {
-        database = com.diekurve.eTankstellen.model.chargingStations.getDatabase(getApplicationContext());
-        chargingStationDAO = database.chargingStationDAO();
+        return;
+        /*database = com.diekurve.eTankstellen.model.chargingStations.
+                getDatabase(getApplicationContext());
+        chargingStationDAO = database.chargingStationDAO();*/
     }
 
-    /**
-     * @return Amount of entities in database
-     */
-    private Integer getDatabaseSize() {
-        AtomicReference<Integer> sizeDB = new AtomicReference<>(0);
-        Thread checkThread = new Thread(() -> {
-            sizeDB.set(chargingStationDAO.getAll().size());
-        });
-        checkThread.start();
-        try {
-            checkThread.join();
-        } catch (InterruptedException e) {
-            Log.e("error", e.toString());
-        }
-        return sizeDB.get();
-    }
+//    /**
+//     * @return Amount of entities in database
+//     */
+//    private Integer getDatabaseSize() {
+//        AtomicReference<Integer> sizeDB = new AtomicReference<>(0);
+//        Thread checkThread = new Thread(() -> {
+//            sizeDB.set(chargingStationDAO.getAll().size());
+//        });
+//        checkThread.start();
+//        try {
+//            checkThread.join();
+//        } catch (InterruptedException e) {
+//            Log.e("error", e.toString());
+//        }
+//        return sizeDB.get();
+//    }
 
     /**
      * Deletes the database
      */
     private void deleteDatabase() {
-        Thread checkThread = new Thread(() -> {
-            chargingStationDAO.deleteAll();
-        });
-        checkThread.start();
-        try {
-            checkThread.join();
-        } catch (InterruptedException e) {
-            Log.e("error", e.toString());
-        }
+        //Runnable runnable = () -> chargingStationDAO.deleteAll();
+        //runnable.run();
     }
 
     /**

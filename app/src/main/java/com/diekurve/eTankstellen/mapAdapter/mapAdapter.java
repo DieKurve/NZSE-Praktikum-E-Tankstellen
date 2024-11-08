@@ -19,7 +19,7 @@ import java.util.List;
 
 import com.diekurve.eTankstellen.R;
 import com.diekurve.eTankstellen.model.ChargingStationDAO;
-import com.diekurve.eTankstellen.model.chargingStations;
+import com.diekurve.eTankstellen.model.ChargingStationDatabase;
 import com.diekurve.eTankstellen.model.chargingStation;
 
 public class mapAdapter extends RecyclerView.Adapter<mapAdapter.ViewHolder> {
@@ -118,7 +118,8 @@ public class mapAdapter extends RecyclerView.Adapter<mapAdapter.ViewHolder> {
      * @param position Position of Element which will be updated
      */
     private void updateChargingStation(int position) {
-        chargingStations db = chargingStations.getDatabase(mContext);
+        return;
+        /*chargingStations db = chargingStations.getDatabase(mContext);
         ChargingStationDAO dao = db.chargingStationDAO();
         Thread updateThread = new Thread(() -> dao.update(localDataSet.get(position)));
         updateThread.start();
@@ -126,7 +127,7 @@ public class mapAdapter extends RecyclerView.Adapter<mapAdapter.ViewHolder> {
             updateThread.join();
         } catch (InterruptedException e) {
             Log.e("error", e.toString());
-        }
+        }*/
     }
 
 

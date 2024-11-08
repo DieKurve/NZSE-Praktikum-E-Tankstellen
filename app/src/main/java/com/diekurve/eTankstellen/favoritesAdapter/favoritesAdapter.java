@@ -22,7 +22,7 @@ import java.util.List;
 
 import com.diekurve.eTankstellen.R;
 import com.diekurve.eTankstellen.model.ChargingStationDAO;
-import com.diekurve.eTankstellen.model.chargingStations;
+import com.diekurve.eTankstellen.model.ChargingStationDatabase;
 import com.diekurve.eTankstellen.model.chargingStation;
 
 public class favoritesAdapter extends RecyclerView.Adapter<favoritesAdapter.ViewHolder> {
@@ -148,7 +148,7 @@ public class favoritesAdapter extends RecyclerView.Adapter<favoritesAdapter.View
      * @param position Position of Element which will be updated
      */
     private void updateChargingStation(int position) {
-        chargingStations db = chargingStations.getDatabase(mContext);
+        /*ChargingStationDatabase db = ChargingStationDatabase.getDatabase(mContext);
         ChargingStationDAO dao = db.chargingStationDAO();
         Thread updateThread = new Thread(() -> dao.update(localDataSet.get(position)));
         updateThread.start();
@@ -156,7 +156,8 @@ public class favoritesAdapter extends RecyclerView.Adapter<favoritesAdapter.View
             updateThread.join();
         } catch (InterruptedException e) {
             Log.e("error", e.toString());
-        }
+        }*/
+        return;
     }
 
 

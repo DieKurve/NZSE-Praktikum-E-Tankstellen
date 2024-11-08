@@ -2,6 +2,7 @@ package com.diekurve.eTankstellen.model;
 
 import androidx.room.Dao;
 import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Update;
 
@@ -17,12 +18,15 @@ public interface ChargingStationDAO {
     @Query("SELECT * FROM chargingstations")
     List<chargingStation> getAll();
 
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    void insertStation(chargingStation station);
     /**
      * Inserts a list of chargingstations into the database
      *
      * @param chargingStationList List of Chargingstations which are inserted into the database
      */
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     void insertAll(List<chargingStation> chargingStationList);
 
     /**
@@ -32,7 +36,6 @@ public interface ChargingStationDAO {
      */
     @Update
     void update(chargingStation chargingStation);
-
 
     /**
      * Returns a list of all favorite chargingstations

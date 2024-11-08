@@ -1,12 +1,18 @@
 package com.diekurve.eTankstellen;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+
+import androidx.core.content.ContextCompat;
+import androidx.preference.PreferenceManager;
+
 import android.util.Log;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,36 +20,40 @@ import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
+
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.diekurve.eTankstellen.mapAdapter.mapAdapter;
-import com.diekurve.eTankstellen.model.chargingStations;
+import com.diekurve.eTankstellen.model.ChargingStationDatabase;
 import com.diekurve.eTankstellen.model.chargingStation;
 
+import org.osmdroid.api.IMapController;
+import org.osmdroid.config.Configuration;
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
+import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.Marker;
 
-public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
 
-    final int MY_PERMISSIONS = 1;
-    private final String[] permissions = {Manifest.permission.ACCESS_COARSE_LOCATION};
-    private GoogleMap mGoogleMap;
-    private chargingStations database;
+public class MapActivity extends AppCompatActivity {
+
+
+    private final int REQUEST_PERMISSIONS_REQUEST_CODE = 1;
+    private MapView map = null;
+    //    final int MY_PERMISSIONS = 1;
+    //    private GoogleMap mGoogleMap;
+    private ChargingStationDatabase database;
     private List<chargingStation> chargingStationList = new ArrayList<>();
     private RecyclerView mRecyclerViewMap;
     private mapAdapter mAdapter;
-    private FusedLocationProviderClient fusedLocationClient;
     private LatLng lastLocation;
+    private IMapController mapController = map.getController();
 
     /**
      * Creates the activity
@@ -58,25 +68,45 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstance) {
 
         super.onCreate(savedInstance);
+
+        Context ctx = getApplicationContext();
+        Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx));
+
+        requestPermissionsIfNecessary(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE}
+        );
+
         setContentView(R.layout.activity_map);
-        database = chargingStations.getDatabase(getApplicationContext());
+        //database = chargingStations.getDatabase(getApplicationContext());
         try {
             chargingStationList = loadChargingStations();
         } catch (InterruptedException e) {
             Log.e("error", e.toString());
         }
-        System.out.println(chargingStationList.size());
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
+        Log.i("ChargingStationList", "Size:" + chargingStationList.size());
+
+        // Get Location from GPS
+        //fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
         BottomNavigationView navView = findViewById(R.id.bottom_navigation_map);
 
+        // Get the SupportMapFragment and request notification when the map is ready to be used.
+//        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+//                .findFragmentById(R.id.map);
+//        assert mapFragment != null;
+//        mapFragment.getMapAsync(this);
         initNavView(navView);
 
-        // Get the SupportMapFragment and request notification when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        assert mapFragment != null;
-        mapFragment.getMapAsync(this);
+        map = findViewById(R.id.map);
+        map.setTileSource(TileSourceFactory.MAPNIK);
 
+
+        IMapController mapController = map.getController();
+        mapController.setZoom(9.5);
+        GeoPoint startPoint = new GeoPoint(48.8583, 2.2944);
+        mapController.setCenter(startPoint);
     }
 
     /**
@@ -99,69 +129,56 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 return true;
             } else return item.getItemId() == R.id.navigation_map;
         });
+
+        map.setVisibility(View.VISIBLE);
+        map.setMultiTouchControls(true);
+        addMarkers();
     }
 
-    /**
-     * Initializes the map, marks the current location on the map and all chargingstations
-     *
-     * @param googleMap GoogleMap for use with method
-     */
-    @Override
-    public void onMapReady(@NonNull GoogleMap googleMap) {
-        mGoogleMap = googleMap;
-        mGoogleMap.getUiSettings().setMyLocationButtonEnabled(true);
-        if (ActivityCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, permissions, MY_PERMISSIONS);
-            return;
-        }
-        mGoogleMap.setMyLocationEnabled(true);
+//    /**
+//     * Initializes the map, marks the current location on the map and all Charging Stations
+//     *
+//     * @param googleMap GoogleMap for use with method
+//     */
+//    @Override
+//    public void onMapReady(@NonNull GoogleMap googleMap) {
+//        mGoogleMap = googleMap;
+//        mGoogleMap.getUiSettings().setMyLocationButtonEnabled(true);
+//        if (ActivityCompat.checkSelfPermission(this,
+//                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+//                && ActivityCompat.checkSelfPermission(this,
+//                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//            ActivityCompat.requestPermissions(this, permissions, MY_PERMISSIONS);
+//            return;
+//        }
+//        mGoogleMap.setMyLocationEnabled(true);
+//
+//        fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
+//            if (location != null) {
+//                lastLocation = new LatLng(location.getLatitude(), location.getLongitude());
+//                mGoogleMap.addMarker(new MarkerOptions().position(lastLocation).title("Marker on Last Location"));
+//                float zoom = 12.0f;
+//                mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lastLocation, zoom));
+//                addMarker();
+//            }
+//        });
+//    }
 
-        fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
-            if (location != null) {
-                lastLocation = new LatLng(location.getLatitude(), location.getLongitude());
-                mGoogleMap.addMarker(new MarkerOptions().position(lastLocation).title("Marker on Last Location"));
-                float zoom = 12.0f;
-                mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lastLocation, zoom));
-                addMarker();
-            }
-        });
-    }
-
     /**
-     * Adds a new marker on the map
+     * Adds a all markers on the map
      */
-    private void addMarker() {
-        for (chargingStation chargingStatonsObject : chargingStationList) {
+    private void addMarkers() {
+        for (chargingStation chargingStationsObject : chargingStationList) {
             Location chargingStationLocation = new Location(LocationManager.GPS_PROVIDER);
-            chargingStationLocation.setLongitude(chargingStatonsObject.getLongitude());
-            chargingStationLocation.setLatitude(chargingStatonsObject.getLatitude());
+            chargingStationLocation.setLongitude(chargingStationsObject.getLongitude());
+            chargingStationLocation.setLatitude(chargingStationsObject.getLatitude());
             if (checkIsInDistance(chargingStationLocation, lastLocation, 25)) {
-                LatLng chargingStationCoordinates = new LatLng(chargingStatonsObject.getLatitude(),
-                        chargingStatonsObject.getLongitude());
-                mGoogleMap.addMarker(
-                        new MarkerOptions().position(chargingStationCoordinates).title(
-                                chargingStatonsObject.getOperator()));
-                mGoogleMap.setOnMarkerClickListener(marker -> {
-                    mRecyclerViewMap = findViewById(R.id.recyclerViewMapMarker);
-                    LinearLayoutManager linearLayoutManager =
-                            new LinearLayoutManager(getApplicationContext());
-                    mRecyclerViewMap.setLayoutManager(linearLayoutManager);
-                    double longitude = marker.getPosition().longitude;
-                    double latitude = marker.getPosition().latitude;
-
-                    try {
-                        mAdapter = new mapAdapter(loadChargingStationWithCoordinates(longitude, latitude));
-                    } catch (InterruptedException e) {
-                        Log.e("error", e.toString());
-                    }
-                    mRecyclerViewMap.setAdapter(mAdapter);
-                    return false;
-                });
+                Marker newMarker = new Marker(map);
+                newMarker.setTextIcon(chargingStationsObject.getOperator());
+                newMarker.setPosition(new GeoPoint(chargingStationsObject.getLatitude(),
+                        chargingStationsObject.getLongitude()));
+                map.getOverlays().add(newMarker);
             }
-
         }
     }
 
@@ -173,10 +190,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
      */
     private List<chargingStation> loadChargingStations() throws InterruptedException {
         AtomicReference<List<chargingStation>> chargingStations = new AtomicReference<>();
-        Thread dbListThread = new Thread(() ->
+        /*Thread dbListThread = new Thread(() ->
                 chargingStations.set(database.chargingStationDAO().getAll()));
         dbListThread.start();
-        dbListThread.join();
+        dbListThread.join();*/
         return chargingStations.get();
     }
 
@@ -192,11 +209,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                                                                      double latitude)
             throws InterruptedException {
         AtomicReference<List<chargingStation>> chargingStations = new AtomicReference<>();
-        Thread dbListThread = new Thread(() ->
+        /*Thread dbListThread = new Thread(() ->
                 chargingStations.set(database.chargingStationDAO().
                         getChargingStationsWithCoordinates(latitude, longitude)));
         dbListThread.start();
-        dbListThread.join();
+        dbListThread.join();*/
         return chargingStations.get();
     }
 
@@ -215,7 +232,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         currentLocation.setLongitude(lastLocation.longitude);
         int distance = (int) currentLocation.distanceTo(checkLocation);
         distance /= 1000;
-        return distance <= maxDistance;
+                return distance <= maxDistance;
     }
 
     /**
@@ -223,8 +240,43 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
      */
     @Override
     protected void onResume() {
-
         super.onResume();
+        map.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        map.onPause();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        ArrayList<String> permissionsToRequest = new ArrayList<>(Arrays.asList(permissions).subList(0, grantResults.length));
+        if (!permissionsToRequest.isEmpty()) {
+            ActivityCompat.requestPermissions(
+                    this,
+                    permissionsToRequest.toArray(new String[0]),
+                    REQUEST_PERMISSIONS_REQUEST_CODE);
+        }
+    }
+
+    private void requestPermissionsIfNecessary(String[] permissions) {
+        ArrayList<String> permissionsToRequest = new ArrayList<>();
+        for (String permission : permissions) {
+            if (ContextCompat.checkSelfPermission(this, permission)
+                    != PackageManager.PERMISSION_GRANTED) {
+                // Permission is not granted
+                permissionsToRequest.add(permission);
+            }
+        }
+        if (!permissionsToRequest.isEmpty()) {
+            ActivityCompat.requestPermissions(
+                    this,
+                    permissionsToRequest.toArray(new String[0]),
+                    REQUEST_PERMISSIONS_REQUEST_CODE);
+        }
     }
 
 }
