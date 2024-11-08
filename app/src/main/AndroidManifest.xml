@@ -36,18 +36,9 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".download.GetChargingStationsActivity"
-            android:launchMode="singleInstance" />
-        <activity
             android:name=".MapActivity"
             android:launchMode="singleInstance" />
         <activity android:name=".FavoriteActivity" />
-
-        <!--
-        <service
-            android:name=".download.RequestService"
-            android:enabled="true" />
-            -->
     </application>
 
 
